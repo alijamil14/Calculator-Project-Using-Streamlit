@@ -259,9 +259,9 @@ st.markdown(
        ===================================================== */
 
     div[data-testid="column"] {
-        padding-left: 4px !important;
-        padding-right: 4px !important;
-    }
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+}
 
 
     /* =====================================================
