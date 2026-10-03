@@ -194,40 +194,27 @@ st.markdown(
     }
 
     div.stButton > button {
-        width: 100% !important;
-        height: 53px !important;
-
-        padding: 0 !important;
-        margin-bottom: 8px !important;
-
-        border-radius: 12px !important;
-
-        background: #292929 !important;
-        border: 1px solid #414141 !important;
-
-        color: #f5f5f5 !important;
-
-        font-size: 16px !important;
-        font-weight: 600 !important;
-
-        box-shadow:
-            0 4px 0 #151515,
-            0 6px 10px rgba(0,0,0,.25);
-
-        transition:
-            background .12s ease,
-            transform .08s ease;
-    }
+    width: 100%;
+    height: 65px;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 600;
+    border: 1px solid #374151;
+    transition: all 0.15s ease;
+}
 
     div.stButton > button:hover {
-        background: #393939 !important;
-        border-color: #5a5a5a !important;
-        color: white !important;
-    }
+    transform: translateY(-2px);
+    border-color: #60a5fa;
+}
 
     div.stButton > button:active {
-        transform: translateY(3px);
-    }
+    transform: translateY(1px);
+}
+
+div[data-testid="column"] {
+    padding: 4px;
+}
 
 
     /* Orange operators */
