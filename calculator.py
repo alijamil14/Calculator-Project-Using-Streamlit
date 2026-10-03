@@ -65,208 +65,389 @@ st.markdown(
     """
     <style>
 
-    /* Page */
+    /* =====================================================
+       PAGE
+       ===================================================== */
+
     .stApp {
         background:
             radial-gradient(
-                circle at top,
+                circle at 20% 0%,
                 #292929 0%,
-                #111111 45%,
+                #111111 48%,
                 #070707 100%
             );
     }
 
     .block-container {
-        max-width: 600px;
-        padding-top: 35px;
-        padding-bottom: 35px;
+        max-width: 760px !important;
+        padding-top: 35px !important;
+        padding-bottom: 35px !important;
     }
 
     #MainMenu,
-    footer,
-    header {
+    header,
+    footer {
         visibility: hidden;
     }
 
 
-    /* Calculator */
+    /* =====================================================
+       CALCULATOR BODY
+       ===================================================== */
+
     .calculator {
+        width: 100%;
+        box-sizing: border-box;
+
         background: #181818;
+
         border: 1px solid #333333;
-        border-radius: 28px;
-        padding: 22px;
+        border-radius: 30px;
+
+        padding: 28px;
+
         box-shadow:
-            0 30px 70px rgba(0,0,0,.65),
-            inset 0 1px 0 rgba(255,255,255,.04);
+            0 30px 80px rgba(0, 0, 0, 0.75),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
     }
 
 
-    /* Header */
+    /* =====================================================
+       HEADER
+       ===================================================== */
+
     .calc-header {
         display: flex;
         align-items: center;
-        gap: 12px;
-        margin-bottom: 18px;
+        gap: 15px;
+
+        margin-bottom: 22px;
     }
 
     .logo {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
+        width: 58px;
+        height: 58px;
+
+        flex-shrink: 0;
 
         display: flex;
         align-items: center;
         justify-content: center;
 
         background: #242424;
-        border: 1px solid #414141;
 
-        font-size: 25px;
+        border: 1px solid #414141;
+        border-radius: 16px;
+
+        font-size: 30px;
+
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.04);
     }
 
     .title {
-        color: white;
-        font-size: 24px;
+        color: #ffffff;
+
+        font-size: 28px;
         font-weight: 700;
+
         line-height: 1.1;
     }
 
     .subtitle {
-        color: #777;
-        font-size: 10px;
-        letter-spacing: 1.4px;
-        margin-top: 4px;
+        color: #777777;
+
+        font-size: 11px;
+        letter-spacing: 2px;
+
+        margin-top: 6px;
     }
 
 
-    /* Display */
+    /* =====================================================
+       DISPLAY
+       ===================================================== */
+
     .display {
-        height: 125px;
+        min-height: 155px;
+
         box-sizing: border-box;
 
         background: #080808;
-        border: 1px solid #303030;
-        border-radius: 18px;
 
-        padding: 15px 20px;
+        border: 1px solid #303030;
+        border-radius: 20px;
+
+        padding: 18px 22px;
 
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
         align-items: flex-end;
 
-        margin-bottom: 16px;
+        margin-bottom: 20px;
 
-        box-shadow: inset 0 4px 16px rgba(0,0,0,.75);
+        box-shadow:
+            inset 0 5px 20px rgba(0, 0, 0, 0.85),
+            0 1px 0 rgba(255, 255, 255, 0.02);
     }
 
     .display-mode {
         width: 100%;
-        color: #777;
+
+        color: #777777;
+
         text-align: right;
-        font-size: 10px;
-        letter-spacing: 1.3px;
+
+        font-size: 11px;
+        font-weight: 600;
+
+        letter-spacing: 1.5px;
     }
 
     .display-expression {
         width: 100%;
-        color: #777;
+
+        color: #777777;
+
         text-align: right;
-        font-size: 15px;
-        min-height: 23px;
+
+        font-size: 18px;
+
+        min-height: 27px;
+
         overflow-wrap: anywhere;
     }
 
     .display-result {
         width: 100%;
-        color: white;
+
+        color: #ffffff;
+
         text-align: right;
-        font-size: 38px;
+
+        font-size: 46px;
         font-weight: 600;
+
         line-height: 1.15;
+
         overflow-wrap: anywhere;
     }
 
 
-    /* All buttons */
+    /* =====================================================
+       SECTION LABEL
+       ===================================================== */
+
+    .section {
+        color: #666666;
+
+        font-size: 10px;
+        font-weight: 700;
+
+        letter-spacing: 2px;
+
+        text-transform: uppercase;
+
+        margin: 14px 0 10px 3px;
+    }
+
+
+    /* =====================================================
+       STREAMLIT COLUMNS
+       ===================================================== */
+
+    div[data-testid="column"] {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+    }
+
+
+    /* =====================================================
+       ALL BUTTONS
+       ===================================================== */
+
     div.stButton {
         width: 100%;
     }
 
     div.stButton > button {
-    width: 100%;
-    height: 75px;
-    border-radius: 12px;
-    font-size: 22px;
-    font-weight: 600;
-    border: 1px solid #374151;
-    transition: all 0.15s ease;
-}
+        width: 100% !important;
+
+        min-height: 68px !important;
+        height: 68px !important;
+
+        padding: 8px 5px !important;
+
+        border-radius: 14px !important;
+
+        background: #252525 !important;
+
+        color: #f2f2f2 !important;
+
+        border: 1px solid #3c3c3c !important;
+
+        font-size: 19px !important;
+        font-weight: 600 !important;
+
+        box-shadow:
+            0 4px 0 #111111,
+            0 7px 12px rgba(0, 0, 0, 0.30);
+
+        transition:
+            transform 0.12s ease,
+            background 0.12s ease,
+            border-color 0.12s ease,
+            box-shadow 0.12s ease;
+    }
+
+    /* Hover */
 
     div.stButton > button:hover {
-    transform: translateY(-2px);
-    border-color: #60a5fa;
-}
+        background: #303030 !important;
+
+        border-color: #5a5a5a !important;
+
+        color: #ffffff !important;
+
+        transform: translateY(-2px);
+
+        box-shadow:
+            0 6px 0 #111111,
+            0 10px 18px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Press */
 
     div.stButton > button:active {
-    transform: translateY(1px);
-}
+        transform: translateY(3px) !important;
 
-div[data-testid="column"] {
-    padding: 4px;
-}
+        box-shadow:
+            0 1px 0 #111111,
+            0 3px 6px rgba(0, 0, 0, 0.30);
+    }
 
 
-    /* Orange operators */
-    div.stButton > button.operator {
+    /* =====================================================
+       TOP CONTROL BUTTONS
+       ===================================================== */
+
+    .control-row div.stButton > button {
+        min-height: 58px !important;
+        height: 58px !important;
+
+        font-size: 15px !important;
+
+        background: #202020 !important;
+    }
+
+
+    /* =====================================================
+       SCIENTIFIC BUTTONS
+       ===================================================== */
+
+    .scientific-row div.stButton > button {
+        min-height: 62px !important;
+        height: 62px !important;
+
+        font-size: 16px !important;
+
+        background: #202020 !important;
+    }
+
+
+    /* =====================================================
+       ORANGE OPERATORS
+       We target buttons by their position instead of
+       nonexistent custom button classes.
+       ===================================================== */
+
+    .operator-row div.stButton:nth-child(4) > button,
+    .operator-row div.stButton:nth-child(5) > button {
         background: #e67e22 !important;
+
         border-color: #f39a45 !important;
+
+        color: #ffffff !important;
+
         box-shadow:
             0 4px 0 #914d12,
-            0 6px 10px rgba(0,0,0,.25);
+            0 7px 12px rgba(0, 0, 0, 0.30);
+    }
+
+    .operator-row div.stButton:nth-child(4) > button:hover,
+    .operator-row div.stButton:nth-child(5) > button:hover {
+        background: #f08b2d !important;
+
+        border-color: #ffad62 !important;
     }
 
 
-    /* Red AC / DEL */
-    div.stButton > button.danger {
+    /* =====================================================
+       DANGER BUTTONS
+       ===================================================== */
+
+    .danger-row div.stButton:nth-child(4) > button,
+    .danger-row div.stButton:nth-child(5) > button {
         background: #c62828 !important;
+
         border-color: #e14b4b !important;
+
+        color: #ffffff !important;
+
         box-shadow:
             0 4px 0 #721717,
-            0 6px 10px rgba(0,0,0,.25);
+            0 7px 12px rgba(0, 0, 0, 0.30);
+    }
+
+    .danger-row div.stButton:nth-child(4) > button:hover,
+    .danger-row div.stButton:nth-child(5) > button:hover {
+        background: #d93636 !important;
+
+        border-color: #f05b5b !important;
     }
 
 
-    /* Equal */
-    div.stButton > button.equals {
+    /* =====================================================
+       EQUAL BUTTON
+       ===================================================== */
+
+    .equals-row div.stButton:nth-child(5) > button {
         background: #eeeeee !important;
+
         color: #111111 !important;
-        border-color: white !important;
+
+        border-color: #ffffff !important;
+
         box-shadow:
             0 4px 0 #999999,
-            0 6px 10px rgba(0,0,0,.25);
+            0 7px 12px rgba(0, 0, 0, 0.30);
+    }
+
+    .equals-row div.stButton:nth-child(5) > button:hover {
+        background: #ffffff !important;
+
+        color: #000000 !important;
     }
 
 
-    /* Section */
-    .section {
-        color: #666;
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 1.8px;
-        text-transform: uppercase;
-        margin: 7px 0 8px 2px;
-    }
+    /* =====================================================
+       STATUS
+       ===================================================== */
 
-
-    /* Status */
     .status {
         display: flex;
         justify-content: space-between;
-        margin-top: 5px;
-        padding: 0 3px;
-        color: #666;
+
+        margin-top: 14px;
+
+        padding: 0 4px;
+
+        color: #666666;
+
         font-size: 10px;
+
         letter-spacing: 1px;
     }
 
@@ -275,39 +456,112 @@ div[data-testid="column"] {
     }
 
 
-    /* Mobile */
+    /* =====================================================
+       MOBILE
+       ===================================================== */
+
     @media (max-width: 600px) {
 
         .block-container {
-            padding: 15px 8px;
+            padding: 15px 7px !important;
         }
 
         .calculator {
-            padding: 15px;
-            border-radius: 22px;
+            padding: 17px;
+
+            border-radius: 23px;
         }
 
-        .title {
-            font-size: 20px;
+        .calc-header {
+            gap: 11px;
         }
 
         .logo {
-            width: 42px;
-            height: 42px;
+            width: 46px;
+            height: 46px;
+
+            border-radius: 13px;
+
+            font-size: 24px;
+        }
+
+        .title {
+            font-size: 21px;
+        }
+
+        .subtitle {
+            font-size: 8px;
+            letter-spacing: 1.3px;
         }
 
         .display {
-            height: 110px;
+            min-height: 125px;
+
+            padding: 15px 16px;
+
+            border-radius: 16px;
         }
 
         .display-result {
-            font-size: 30px;
+            font-size: 34px;
+        }
+
+        div[data-testid="column"] {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
         }
 
         div.stButton > button {
-            height: 47px !important;
+            min-height: 60px !important;
+            height: 60px !important;
+
+            font-size: 17px !important;
+
+            border-radius: 11px !important;
+        }
+
+        .control-row div.stButton > button {
+            min-height: 52px !important;
+            height: 52px !important;
+
+            font-size: 13px !important;
+        }
+
+        .scientific-row div.stButton > button {
+            min-height: 55px !important;
+            height: 55px !important;
+
             font-size: 14px !important;
-            border-radius: 10px !important;
+        }
+    }
+
+
+    /* =====================================================
+       VERY SMALL SCREENS
+       ===================================================== */
+
+    @media (max-width: 400px) {
+
+        .calculator {
+            padding: 12px;
+        }
+
+        div.stButton > button {
+            min-height: 54px !important;
+            height: 54px !important;
+
+            font-size: 15px !important;
+        }
+
+        .scientific-row div.stButton > button {
+            min-height: 50px !important;
+            height: 50px !important;
+
+            font-size: 12px !important;
+        }
+
+        .display-result {
+            font-size: 29px;
         }
     }
 
@@ -318,10 +572,13 @@ div[data-testid="column"] {
 
 
 # ---------------------------------------------------------
-# CALCULATOR
+# CALCULATOR CONTAINER
 # ---------------------------------------------------------
 
-st.markdown('<div class="calculator">', unsafe_allow_html=True)
+st.markdown(
+    '<div class="calculator">',
+    unsafe_allow_html=True,
+)
 
 
 # ---------------------------------------------------------
@@ -335,8 +592,13 @@ st.markdown(
         <div class="logo">🧮</div>
 
         <div>
-            <div class="title">Scientific Calculator</div>
-            <div class="subtitle">ADVANCED CALCULATION SYSTEM</div>
+            <div class="title">
+                Scientific Calculator
+            </div>
+
+            <div class="subtitle">
+                ADVANCED CALCULATION SYSTEM
+            </div>
         </div>
 
     </div>
@@ -346,19 +608,23 @@ st.markdown(
 
 
 # ---------------------------------------------------------
-# OUTPUT SCREEN
+# DISPLAY
 # ---------------------------------------------------------
 
 if st.session_state.calculator_on:
 
     mode_text = f"{st.session_state.mode} MODE"
+
     expression = st.session_state.expression
+
     result = st.session_state.result or "0"
 
 else:
 
     mode_text = "POWER OFF"
+
     expression = ""
+
     result = "OFF"
 
 
@@ -385,8 +651,13 @@ st.markdown(
 
 
 # ---------------------------------------------------------
-# DEG / RAD / CLR / ON
+# CONTROL ROW
 # ---------------------------------------------------------
+
+st.markdown(
+    '<div class="control-row">',
+    unsafe_allow_html=True,
+)
 
 c1, c2, c3, c4 = st.columns(4)
 
@@ -403,12 +674,20 @@ with c3:
         clear_all()
 
 with c4:
-    if st.button("ON", key="power"):
+    if st.button(
+        "ON" if not st.session_state.calculator_on else "OFF",
+        key="power",
+    ):
         toggle_power()
+
+st.markdown(
+    '</div>',
+    unsafe_allow_html=True,
+)
 
 
 # ---------------------------------------------------------
-# SCIENTIFIC SECTION
+# SCIENTIFIC FUNCTIONS
 # ---------------------------------------------------------
 
 st.markdown(
@@ -417,46 +696,115 @@ st.markdown(
 )
 
 
-# Scientific row 1
+# ---------------------------------------------------------
+# SCIENTIFIC ROW 1
+# ---------------------------------------------------------
+
+st.markdown(
+    '<div class="scientific-row">',
+    unsafe_allow_html=True,
+)
+
 c1, c2, c3, c4, c5, c6 = st.columns(6)
 
-scientific_1 = ["2nd", "sin", "cos", "tan", "π", "e"]
+scientific_1 = [
+    "2nd",
+    "sin",
+    "cos",
+    "tan",
+    "π",
+    "e",
+]
 
 for col, label in zip(
     [c1, c2, c3, c4, c5, c6],
     scientific_1,
 ):
     with col:
-        if st.button(label, key=f"sci1_{label}"):
+        if st.button(
+            label,
+            key=f"sci1_{label}",
+        ):
             add_value(label)
 
+st.markdown(
+    '</div>',
+    unsafe_allow_html=True,
+)
 
-# Scientific row 2
+
+# ---------------------------------------------------------
+# SCIENTIFIC ROW 2
+# ---------------------------------------------------------
+
+st.markdown(
+    '<div class="scientific-row">',
+    unsafe_allow_html=True,
+)
+
 c1, c2, c3, c4, c5, c6 = st.columns(6)
 
-scientific_2 = ["log", "ln", "√", "x²", "xʸ", "!"]
+scientific_2 = [
+    "log",
+    "ln",
+    "√",
+    "x²",
+    "xʸ",
+    "!",
+]
 
 for col, label in zip(
     [c1, c2, c3, c4, c5, c6],
     scientific_2,
 ):
     with col:
-        if st.button(label, key=f"sci2_{label}"):
+        if st.button(
+            label,
+            key=f"sci2_{label}",
+        ):
             add_value(label)
 
+st.markdown(
+    '</div>',
+    unsafe_allow_html=True,
+)
 
-# Scientific row 3
+
+# ---------------------------------------------------------
+# SCIENTIFIC ROW 3
+# ---------------------------------------------------------
+
+st.markdown(
+    '<div class="scientific-row">',
+    unsafe_allow_html=True,
+)
+
 c1, c2, c3, c4, c5, c6 = st.columns(6)
 
-scientific_3 = ["(", ")", "%", "EXP", "ANS", "M+"]
+scientific_3 = [
+    "(",
+    ")",
+    "%",
+    "EXP",
+    "ANS",
+    "M+",
+]
 
 for col, label in zip(
     [c1, c2, c3, c4, c5, c6],
     scientific_3,
 ):
     with col:
-        if st.button(label, key=f"sci3_{label}"):
+        if st.button(
+            label,
+            key=f"sci3_{label}",
+        ):
             add_value(label)
+
+st.markdown(
+    '</div>',
+    unsafe_allow_html=True,
+)
 
 
 # ---------------------------------------------------------
@@ -472,6 +820,11 @@ st.markdown(
 # ---------------------------------------------------------
 # 7 8 9 DEL AC
 # ---------------------------------------------------------
+
+st.markdown(
+    '<div class="danger-row">',
+    unsafe_allow_html=True,
+)
 
 c1, c2, c3, c4, c5 = st.columns(5)
 
@@ -495,10 +848,20 @@ with c5:
     if st.button("AC", key="ac"):
         clear_all()
 
+st.markdown(
+    '</div>',
+    unsafe_allow_html=True,
+)
+
 
 # ---------------------------------------------------------
-# 4 5 6 MULTIPLY DIVISION
+# 4 5 6 × ÷
 # ---------------------------------------------------------
+
+st.markdown(
+    '<div class="operator-row">',
+    unsafe_allow_html=True,
+)
 
 c1, c2, c3, c4, c5 = st.columns(5)
 
@@ -522,10 +885,20 @@ with c5:
     if st.button("÷", key="division"):
         add_value("÷")
 
+st.markdown(
+    '</div>',
+    unsafe_allow_html=True,
+)
+
 
 # ---------------------------------------------------------
-# 1 2 3 ADDITION SUBTRACTION
+# 1 2 3 + −
 # ---------------------------------------------------------
+
+st.markdown(
+    '<div class="operator-row">',
+    unsafe_allow_html=True,
+)
 
 c1, c2, c3, c4, c5 = st.columns(5)
 
@@ -549,10 +922,20 @@ with c5:
     if st.button("−", key="subtraction"):
         add_value("−")
 
+st.markdown(
+    '</div>',
+    unsafe_allow_html=True,
+)
+
 
 # ---------------------------------------------------------
 # 0 . EXP ANS =
 # ---------------------------------------------------------
+
+st.markdown(
+    '<div class="equals-row">',
+    unsafe_allow_html=True,
+)
 
 c1, c2, c3, c4, c5 = st.columns(5)
 
@@ -576,12 +959,21 @@ with c5:
     if st.button("=", key="equals"):
         calculate()
 
+st.markdown(
+    '</div>',
+    unsafe_allow_html=True,
+)
+
 
 # ---------------------------------------------------------
 # STATUS
 # ---------------------------------------------------------
 
-status = "● ON" if st.session_state.calculator_on else "● OFF"
+status = (
+    "● ON"
+    if st.session_state.calculator_on
+    else "● OFF"
+)
 
 st.markdown(
     f"""
@@ -589,7 +981,9 @@ st.markdown(
 
         <span>SCIENTIFIC MODE</span>
 
-        <span class="online">{status}</span>
+        <span class="online">
+            {status}
+        </span>
 
     </div>
     """,
@@ -597,4 +991,11 @@ st.markdown(
 )
 
 
-st.markdown("</div>", unsafe_allow_html=True)
+# ---------------------------------------------------------
+# CLOSE CALCULATOR
+# ---------------------------------------------------------
+
+st.markdown(
+    '</div>',
+    unsafe_allow_html=True,
+)
