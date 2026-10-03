@@ -269,27 +269,25 @@ st.markdown(
        ===================================================== */
 
     div.stButton {
-        width: 100%;
+       width: 100% !important;
+    margin: 0 !important;
     }
 
     div.stButton > button {
         width: 100% !important;
+    min-width: 100% !important;
 
-        min-height: 68px !important;
-        height: 68px !important;
+    height: 68px !important;
+    min-height: 68px !important;
 
-        padding: 8px 5px !important;
+    padding: 0 !important;
 
-        border-radius: 14px !important;
+    border-radius: 14px !important;
 
-        background: #252525 !important;
+    font-size: 19px !important;
+    font-weight: 600 !important;
 
-        color: #f2f2f2 !important;
-
-        border: 1px solid #3c3c3c !important;
-
-        font-size: 19px !important;
-        font-weight: 600 !important;
+    box-sizing: border-box !important;
 
         box-shadow:
             0 4px 0 #111111,
@@ -467,7 +465,7 @@ st.markdown(
         }
 
         .calculator {
-            padding: 17px;
+            padding: 22px;
 
             border-radius: 23px;
         }
