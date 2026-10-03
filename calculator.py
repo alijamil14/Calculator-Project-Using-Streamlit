@@ -195,9 +195,9 @@ st.markdown(
 
     div.stButton > button {
     width: 100%;
-    height: 65px;
+    height: 75px;
     border-radius: 12px;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 600;
     border: 1px solid #374151;
     transition: all 0.15s ease;
