@@ -1056,7 +1056,7 @@ with st.container():
 
     if st.button(
         "9",
-        key="num7",
+        key="num9",
         use_container_width=True,
     ):
         add_value("9")
