@@ -435,6 +435,50 @@ st.markdown(
         width: 100%;
     }
 
+    .del-button div.stButton > button {
+    background: #c62828 !important;
+    color: white !important;
+    border-color: #ef5350 !important;
+    box-shadow:
+        0 5px 0 #7f1d1d,
+        0 8px 14px rgba(0, 0, 0, .30);
+}
+
+.del-button div.stButton > button:hover {
+    background: #e53935 !important;
+}
+
+
+/* ON button - GREEN */
+.on-button div.stButton > button {
+    background: #2e7d32 !important;
+    color: white !important;
+    border-color: #66bb6a !important;
+    box-shadow:
+        0 5px 0 #1b5e20,
+        0 8px 14px rgba(0, 0, 0, .30);
+}
+
+.on-button div.stButton > button:hover {
+    background: #43a047 !important;
+}
+
+
+/* KEYPAD - WHITE */
+.keypad-button div.stButton > button {
+    background: #f5f5f5 !important;
+    color: #111111 !important;
+    border-color: #ffffff !important;
+    box-shadow:
+        0 5px 0 #aaaaaa,
+        0 8px 14px rgba(0, 0, 0, .25);
+}
+
+.keypad-button div.stButton > button:hover {
+    background: #ffffff !important;
+    border-color: #ffffff !important;
+}
+
     div.stButton > button {
 
         width: 100% !important;
@@ -785,19 +829,22 @@ with control:
 
     with c4:
 
-        power_label = (
-            "OFF"
-            if st.session_state.calculator_on
-            else "ON"
-        )
+    st.markdown(
+        '<div class="on-button">',
+        unsafe_allow_html=True,
+    )
 
-        if st.button(
-            power_label,
-            key="power",
-            use_container_width=True,
-        ):
-            toggle_power()
+    if st.button(
+        "ON",
+        key="power",
+        use_container_width=True,
+    ):
+        toggle_power()
 
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True,
+    )
 
 # =========================================================
 # SCIENTIFIC FUNCTIONS
@@ -964,12 +1011,24 @@ with st.container():
     )
 
     with c1:
-        if st.button(
-            "7",
-            key="num7",
-            use_container_width=True,
-        ):
-            add_value("7")
+
+    st.markdown(
+        '<div class="keypad-button">',
+        unsafe_allow_html=True,
+    )
+
+    if st.button(
+        "7",
+        key="num7",
+        use_container_width=True,
+    ):
+        add_value("7")
+
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True,
+    )
+    
 
     with c2:
         if st.button(
@@ -988,12 +1047,23 @@ with st.container():
             add_value("9")
 
     with c4:
-        if st.button(
-            "DEL",
-            key="delete",
-            use_container_width=True,
-        ):
-            delete_last()
+
+    st.markdown(
+        '<div class="del-button">',
+        unsafe_allow_html=True,
+    )
+
+    if st.button(
+        "DEL",
+        key="delete",
+        use_container_width=True,
+    ):
+        delete_last()
+
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True,
+    )
 
     with c5:
         if st.button(
