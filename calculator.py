@@ -829,12 +829,12 @@ with control:
 
     with c4:
 
-    st.markdown(
+     st.markdown(
         '<div class="on-button">',
         unsafe_allow_html=True,
     )
 
-    if st.button(
+     if st.button(
         "ON",
         key="power",
         use_container_width=True,
@@ -1012,7 +1012,7 @@ with st.container():
 
     with c1:
 
-    st.markdown(
+     st.markdown(
         '<div class="keypad-button">',
         unsafe_allow_html=True,
     )
@@ -1048,7 +1048,7 @@ with st.container():
 
     with c4:
 
-    st.markdown(
+     st.markdown(
         '<div class="del-button">',
         unsafe_allow_html=True,
     )
