@@ -722,42 +722,26 @@ with header_col2:
 
 if st.session_state.calculator_on:
 
-    mode = f"{st.session_state.mode} MODE"
-
-    expression = (
+    # Show the typed expression.
+    # If nothing has been typed, show 0.
+    display_value = (
         st.session_state.expression
         if st.session_state.expression
-        else "READY"
-    )
-
-    result = (
-        st.session_state.result
-        if st.session_state.result
         else "0"
     )
 
 else:
 
-    mode = "POWER OFF"
-    expression = ""
-    result = "OFF"
+    display_value = "OFF"
 
 
-st.markdown(
+st.html(
     f"""
     <div class="display-box">
-
-        <div class="mode-text">{mode}</div>
-
-        <div class="expression-text">{expression}</div>
-
-        <div class="result-text">{result}</div>
-
+        <div class="result-text">{display_value}</div>
     </div>
-    """,
-    unsafe_allow_html=True,
+    """
 )
-
 
 # =========================================================
 # CONTROL BUTTONS
