@@ -604,30 +604,27 @@ st.markdown(
 
 with st.container(key="calculator"):
 
-    # --------------------------------------------------------
-    # HEADER
-    # --------------------------------------------------------
+# ============================================================
+# HEADER
+# ============================================================
 
     st.markdown(
-        """
-        <div class="calculator-header">
+    """
+    <div class="calculator-header">
+        <div class="calculator-logo">🧮</div>
 
-            <div class="calculator-logo">
-                🧮
-            </div>
+        <h1 class="calculator-title">
+            Scientific Calculator
+        </h1>
 
-            <h1 class="calculator-title">
-                Scientific Calculator
-            </h1>
-
-            <div class="calculator-subtitle">
-                ADVANCED CALCULATION SYSTEM
-            </div>
-
+        <div class="calculator-subtitle">
+            ADVANCED CALCULATION SYSTEM
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 
     # --------------------------------------------------------
