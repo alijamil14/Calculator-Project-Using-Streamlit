@@ -1,4 +1,3 @@
-
 import ast
 import math
 import operator
@@ -8,7 +7,6 @@ import streamlit as st
 # =========================================================
 # PAGE CONFIG
 # =========================================================
-
 st.set_page_config(
     page_title="Scientific Calculator",
     page_icon="🧮",
@@ -19,7 +17,6 @@ st.set_page_config(
 # =========================================================
 # SESSION STATE
 # =========================================================
-
 if "expression" not in st.session_state:
     st.session_state.expression = ""
 
@@ -42,10 +39,8 @@ if "second_function" not in st.session_state:
 # =========================================================
 # CALCULATOR FUNCTIONS
 # =========================================================
-
 def add_value(value):
     """Add a value to the current expression."""
-
     if not st.session_state.calculator_on:
         return
 
@@ -58,34 +53,26 @@ def add_value(value):
 
 def clear_all():
     """Clear the complete calculator."""
-
     st.session_state.expression = ""
     st.session_state.result = "0"
 
 
 def delete_last():
     """Delete the last character from the expression."""
-
     if not st.session_state.calculator_on:
         return
 
-    st.session_state.expression = (
-        st.session_state.expression[:-1]
-    )
+    st.session_state.expression = st.session_state.expression[:-1]
 
 
 def toggle_power():
     """Turn the calculator ON or OFF."""
-
-    st.session_state.calculator_on = (
-        not st.session_state.calculator_on
-    )
+    st.session_state.calculator_on = not st.session_state.calculator_on
 
     if not st.session_state.calculator_on:
         st.session_state.expression = ""
         st.session_state.result = ""
         st.session_state.second_function = False
-
     else:
         st.session_state.expression = ""
         st.session_state.result = "0"
@@ -93,7 +80,6 @@ def toggle_power():
 
 def toggle_second():
     """Toggle second/inverse scientific functions."""
-
     if st.session_state.calculator_on:
         st.session_state.second_function = (
             not st.session_state.second_function
@@ -103,9 +89,7 @@ def toggle_second():
 # =========================================================
 # SCIENTIFIC FUNCTIONS
 # =========================================================
-
 def sin_func(x):
-
     if st.session_state.mode == "DEG":
         x = math.radians(x)
 
@@ -113,7 +97,6 @@ def sin_func(x):
 
 
 def cos_func(x):
-
     if st.session_state.mode == "DEG":
         x = math.radians(x)
 
@@ -121,7 +104,6 @@ def cos_func(x):
 
 
 def tan_func(x):
-
     if st.session_state.mode == "DEG":
         x = math.radians(x)
 
@@ -129,7 +111,6 @@ def tan_func(x):
 
 
 def asin_func(x):
-
     result = math.asin(x)
 
     if st.session_state.mode == "DEG":
@@ -139,7 +120,6 @@ def asin_func(x):
 
 
 def acos_func(x):
-
     result = math.acos(x)
 
     if st.session_state.mode == "DEG":
@@ -149,7 +129,6 @@ def acos_func(x):
 
 
 def atan_func(x):
-
     result = math.atan(x)
 
     if st.session_state.mode == "DEG":
@@ -159,7 +138,6 @@ def atan_func(x):
 
 
 def factorial(x):
-
     if x < 0 or int(x) != x:
         raise ValueError
 
@@ -183,25 +161,20 @@ FUNCTIONS = {
 # =========================================================
 # SAFE EXPRESSION EVALUATOR
 # =========================================================
-
 def evaluate_node(node):
 
     # -----------------------------------------------------
     # Numbers
     # -----------------------------------------------------
-
     if isinstance(node, ast.Constant):
-
         if isinstance(node.value, (int, float)):
             return node.value
 
         raise ValueError
 
-
     # -----------------------------------------------------
     # Constants
     # -----------------------------------------------------
-
     if isinstance(node, ast.Name):
 
         if node.id == "pi":
@@ -215,11 +188,9 @@ def evaluate_node(node):
 
         raise ValueError
 
-
     # -----------------------------------------------------
     # Unary operations
     # -----------------------------------------------------
-
     if isinstance(node, ast.UnaryOp):
 
         if isinstance(node.op, ast.UAdd):
@@ -230,11 +201,9 @@ def evaluate_node(node):
 
         raise ValueError
 
-
     # -----------------------------------------------------
     # Binary operations
     # -----------------------------------------------------
-
     if isinstance(node, ast.BinOp):
 
         left = evaluate_node(node.left)
@@ -260,11 +229,9 @@ def evaluate_node(node):
 
         raise ValueError
 
-
     # -----------------------------------------------------
     # Scientific function calls
     # -----------------------------------------------------
-
     if isinstance(node, ast.Call):
 
         if not isinstance(node.func, ast.Name):
@@ -282,14 +249,12 @@ def evaluate_node(node):
 
         return FUNCTIONS[name](argument)
 
-
     raise ValueError
 
 
 # =========================================================
 # EXPRESSION CONVERSION
 # =========================================================
-
 def evaluate_expression(expression):
 
     expression = expression.replace("×", "*")
@@ -334,7 +299,6 @@ def evaluate_expression(expression):
 # =========================================================
 # CALCULATE
 # =========================================================
-
 def calculate():
 
     if not st.session_state.calculator_on:
@@ -355,7 +319,6 @@ def calculate():
             value = int(value)
 
         st.session_state.result = str(value)
-
         st.session_state.expression = str(value)
 
     except ZeroDivisionError:
@@ -370,7 +333,6 @@ def calculate():
 # =========================================================
 # CSS
 # =========================================================
-
 st.markdown(
     """
     <style>
@@ -411,7 +373,6 @@ st.markdown(
         border: 1px solid #363636;
         border-radius: 30px;
         padding: 28px;
-
         box-shadow:
             0 30px 80px rgba(0, 0, 0, 0.75),
             inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -446,12 +407,10 @@ st.markdown(
         border-radius: 20px;
         padding: 20px;
         min-height: 145px;
-
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
         text-align: right;
-
         margin: 20px 0;
 
         box-shadow:
@@ -462,7 +421,6 @@ st.markdown(
         color: white;
         font-size: 46px;
         font-weight: 600;
-
         overflow-wrap: anywhere;
         word-break: break-word;
     }
@@ -477,9 +435,7 @@ st.markdown(
         font-size: 10px;
         font-weight: 700;
         letter-spacing: 2px;
-
         margin: 18px 0 9px 2px;
-
         text-transform: uppercase;
     }
 
@@ -559,9 +515,7 @@ st.markdown(
        ON / OFF BUTTON
        ===================================================== */
 
-    .on-button + div.stButton > button,
-    .on-button ~ div.stButton > button {
-
+    div.stButton > button[key="power_button"] {
         background:
             linear-gradient(
                 145deg,
@@ -583,8 +537,7 @@ st.markdown(
        DEL BUTTON
        ===================================================== */
 
-    .del-button + div.stButton > button,
-    .del-button ~ div.stButton > button {
+    div.stButton > button[key="delete_button"] {
 
         background:
             linear-gradient(
@@ -604,11 +557,30 @@ st.markdown(
 
 
     /* =====================================================
-       KEYPAD WHITE BUTTONS
+       KEYPAD BUTTONS
+       ALL KEYPAD BUTTONS ARE WHITE
        ===================================================== */
 
-    .keypad-button + div.stButton > button,
-    .keypad-button ~ div.stButton > button {
+    div.stButton > button[key="num7"],
+    div.stButton > button[key="num8"],
+    div.stButton > button[key="num9"],
+    div.stButton > button[key="delete_button"],
+    div.stButton > button[key="allclear"],
+    div.stButton > button[key="num4"],
+    div.stButton > button[key="num5"],
+    div.stButton > button[key="num6"],
+    div.stButton > button[key="multiply"],
+    div.stButton > button[key="divide"],
+    div.stButton > button[key="num1"],
+    div.stButton > button[key="num2"],
+    div.stButton > button[key="num3"],
+    div.stButton > button[key="plus"],
+    div.stButton > button[key="minus"],
+    div.stButton > button[key="num0"],
+    div.stButton > button[key="decimal"],
+    div.stButton > button[key="exp"],
+    div.stButton > button[key="ans"],
+    div.stButton > button[key="equals"] {
 
         background: #ffffff !important;
 
@@ -621,14 +593,100 @@ st.markdown(
             0 8px 14px rgba(0, 0, 0, 0.25) !important;
     }
 
-    .keypad-button + div.stButton > button:hover,
-    .keypad-button ~ div.stButton > button:hover {
+
+    /* =====================================================
+       DEL OVERRIDE
+       DEL MUST REMAIN RED
+       ===================================================== */
+
+    div.stButton > button[key="delete_button"] {
+
+        background:
+            linear-gradient(
+                145deg,
+                #df3c3c,
+                #b91f1f
+            ) !important;
+
+        color: white !important;
+
+        border-color: #ef6464 !important;
+
+        box-shadow:
+            0 5px 0 #711616,
+            0 8px 14px rgba(0, 0, 0, 0.30) !important;
+    }
+
+
+    /* =====================================================
+       ON / OFF HOVER
+       ===================================================== */
+
+    div.stButton > button[key="power_button"]:hover {
+
+        background:
+            linear-gradient(
+                145deg,
+                #388e3c,
+                #2e7d32
+            ) !important;
+
+        border-color: #81c784 !important;
+
+        transform: translateY(-2px) !important;
+    }
+
+
+    /* =====================================================
+       DEL HOVER
+       ===================================================== */
+
+    div.stButton > button[key="delete_button"]:hover {
+
+        background:
+            linear-gradient(
+                145deg,
+                #ef5350,
+                #d32f2f
+            ) !important;
+
+        border-color: #ff8a80 !important;
+
+        transform: translateY(-2px) !important;
+    }
+
+
+    /* =====================================================
+       KEYPAD HOVER
+       ===================================================== */
+
+    div.stButton > button[key="num7"]:hover,
+    div.stButton > button[key="num8"]:hover,
+    div.stButton > button[key="num9"]:hover,
+    div.stButton > button[key="allclear"]:hover,
+    div.stButton > button[key="num4"]:hover,
+    div.stButton > button[key="num5"]:hover,
+    div.stButton > button[key="num6"]:hover,
+    div.stButton > button[key="multiply"]:hover,
+    div.stButton > button[key="divide"]:hover,
+    div.stButton > button[key="num1"]:hover,
+    div.stButton > button[key="num2"]:hover,
+    div.stButton > button[key="num3"]:hover,
+    div.stButton > button[key="plus"]:hover,
+    div.stButton > button[key="minus"]:hover,
+    div.stButton > button[key="num0"]:hover,
+    div.stButton > button[key="decimal"]:hover,
+    div.stButton > button[key="exp"]:hover,
+    div.stButton > button[key="ans"]:hover,
+    div.stButton > button[key="equals"]:hover {
 
         background: #f2f2f2 !important;
 
         color: #111111 !important;
 
         border-color: #ffffff !important;
+
+        transform: translateY(-2px) !important;
     }
 
 
@@ -637,10 +695,8 @@ st.markdown(
        ===================================================== */
 
     .control-button div.stButton > button {
-
         height: 55px !important;
         min-height: 55px !important;
-
         font-size: 14px !important;
     }
 
@@ -650,10 +706,8 @@ st.markdown(
        ===================================================== */
 
     .scientific-button div.stButton > button {
-
         height: 60px !important;
         min-height: 60px !important;
-
         font-size: 15px !important;
     }
 
@@ -662,8 +716,7 @@ st.markdown(
        EQUAL BUTTON
        ===================================================== */
 
-    .equal-button + div.stButton > button,
-    .equal-button ~ div.stButton > button {
+    div.stButton > button[key="equals"] {
 
         background:
             linear-gradient(
@@ -689,7 +742,6 @@ st.markdown(
        ===================================================== */
 
     .status-bar {
-
         display: flex;
         justify-content: space-between;
 
@@ -718,40 +770,32 @@ st.markdown(
     @media (max-width: 600px) {
 
         .block-container {
-
             padding:
                 15px 8px 30px 8px !important;
         }
 
         .calculator-box {
-
             padding: 16px;
-
             border-radius: 23px;
         }
 
         .header-title {
-
             font-size: 21px;
         }
 
         .header-subtitle {
-
             font-size: 8px;
         }
 
         .display-box {
-
             min-height: 125px;
         }
 
         .result-text {
-
             font-size: 34px;
         }
 
         div[data-testid="column"] {
-
             padding-left: 2px !important;
             padding-right: 2px !important;
         }
@@ -759,6 +803,7 @@ st.markdown(
         div.stButton > button {
 
             height: 62px !important;
+
             min-height: 62px !important;
 
             font-size: 17px !important;
@@ -767,6 +812,7 @@ st.markdown(
         .scientific-button div.stButton > button {
 
             height: 54px !important;
+
             min-height: 54px !important;
 
             font-size: 13px !important;
@@ -775,6 +821,7 @@ st.markdown(
         .control-button div.stButton > button {
 
             height: 50px !important;
+
             min-height: 50px !important;
 
             font-size: 12px !important;
@@ -790,7 +837,6 @@ st.markdown(
 # =========================================================
 # CALCULATOR CONTAINER
 # =========================================================
-
 st.markdown(
     '<div class="calculator-box">',
     unsafe_allow_html=True,
@@ -800,16 +846,13 @@ st.markdown(
 # =========================================================
 # HEADER
 # =========================================================
-
 header_col1, header_col2 = st.columns(
     [0.12, 0.88],
     vertical_alignment="center",
 )
 
 with header_col1:
-
     st.markdown("### 🧮")
-
 
 with header_col2:
 
@@ -831,21 +874,14 @@ with header_col2:
 # =========================================================
 # DISPLAY
 # =========================================================
-
 if st.session_state.calculator_on:
 
     if st.session_state.expression:
-
-        display_value = (
-            st.session_state.expression
-        )
-
+        display_value = st.session_state.expression
     else:
-
         display_value = "0"
 
 else:
-
     display_value = "OFF"
 
 
@@ -863,7 +899,6 @@ st.html(
 # =========================================================
 # CONTROL BUTTONS
 # =========================================================
-
 st.markdown(
     '<div class="section-title">Controls</div>',
     unsafe_allow_html=True,
@@ -878,7 +913,6 @@ c1, c2, c3, c4 = st.columns(
 # ---------------------------------------------------------
 # DEG
 # ---------------------------------------------------------
-
 with c1:
 
     if st.button(
@@ -894,7 +928,6 @@ with c1:
 # ---------------------------------------------------------
 # RAD
 # ---------------------------------------------------------
-
 with c2:
 
     if st.button(
@@ -910,7 +943,6 @@ with c2:
 # ---------------------------------------------------------
 # CLR
 # ---------------------------------------------------------
-
 with c3:
 
     if st.button(
@@ -924,14 +956,11 @@ with c3:
 
 # ---------------------------------------------------------
 # ON / OFF
+# IMPORTANT:
+# No extra st.markdown() here.
+# This keeps the button correctly aligned.
 # ---------------------------------------------------------
-
 with c4:
-
-    st.markdown(
-        '<div class="on-button"></div>',
-        unsafe_allow_html=True,
-    )
 
     if st.button(
         "ON / OFF",
@@ -945,7 +974,6 @@ with c4:
 # =========================================================
 # SCIENTIFIC FUNCTIONS
 # =========================================================
-
 st.markdown(
     '<div class="section-title">'
     'Scientific Functions'
@@ -957,7 +985,6 @@ st.markdown(
 # =========================================================
 # SCIENTIFIC ROW 1
 # =========================================================
-
 with st.container():
 
     c1, c2, c3, c4, c5, c6 = st.columns(
@@ -1022,7 +1049,6 @@ with st.container():
 # =========================================================
 # SCIENTIFIC ROW 2
 # =========================================================
-
 with st.container():
 
     c1, c2, c3, c4, c5, c6 = st.columns(
@@ -1058,7 +1084,6 @@ with st.container():
 # =========================================================
 # SCIENTIFIC ROW 3
 # =========================================================
-
 with st.container():
 
     c1, c2, c3, c4, c5, c6 = st.columns(
@@ -1094,7 +1119,6 @@ with st.container():
 # =========================================================
 # KEYPAD
 # =========================================================
-
 st.markdown(
     '<div class="section-title">Keypad</div>',
     unsafe_allow_html=True,
@@ -1104,7 +1128,6 @@ st.markdown(
 # =========================================================
 # 7 8 9 DEL AC
 # =========================================================
-
 with st.container():
 
     c1, c2, c3, c4, c5 = st.columns(
@@ -1112,111 +1135,70 @@ with st.container():
         gap="small",
     )
 
-
     # -----------------------------------------------------
     # 7
     # -----------------------------------------------------
-
     with c1:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "7",
             key="num7",
             use_container_width=True,
         ):
-
             add_value("7")
-
 
     # -----------------------------------------------------
     # 8
     # -----------------------------------------------------
-
     with c2:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "8",
             key="num8",
             use_container_width=True,
         ):
-
             add_value("8")
-
 
     # -----------------------------------------------------
     # 9
     # -----------------------------------------------------
-
     with c3:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "9",
             key="num9",
             use_container_width=True,
         ):
-
             add_value("9")
-
 
     # -----------------------------------------------------
     # DEL
     # -----------------------------------------------------
-
     with c4:
-
-        st.markdown(
-            '<div class="del-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "DEL",
             key="delete_button",
             use_container_width=True,
         ):
-
             delete_last()
-
 
     # -----------------------------------------------------
     # AC
     # -----------------------------------------------------
-
     with c5:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "AC",
             key="allclear",
             use_container_width=True,
         ):
-
             clear_all()
 
 
 # =========================================================
 # 4 5 6 × ÷
 # =========================================================
-
 with st.container():
 
     c1, c2, c3, c4, c5 = st.columns(
@@ -1224,91 +1206,55 @@ with st.container():
         gap="small",
     )
 
-
     with c1:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "4",
             key="num4",
             use_container_width=True,
         ):
-
             add_value("4")
 
-
     with c2:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "5",
             key="num5",
             use_container_width=True,
         ):
-
             add_value("5")
 
-
     with c3:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "6",
             key="num6",
             use_container_width=True,
         ):
-
             add_value("6")
 
-
     with c4:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "×",
             key="multiply",
             use_container_width=True,
         ):
-
             add_value("×")
 
-
     with c5:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "÷",
             key="divide",
             use_container_width=True,
         ):
-
             add_value("÷")
 
 
 # =========================================================
 # 1 2 3 + −
 # =========================================================
-
 with st.container():
 
     c1, c2, c3, c4, c5 = st.columns(
@@ -1316,91 +1262,55 @@ with st.container():
         gap="small",
     )
 
-
     with c1:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "1",
             key="num1",
             use_container_width=True,
         ):
-
             add_value("1")
 
-
     with c2:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "2",
             key="num2",
             use_container_width=True,
         ):
-
             add_value("2")
 
-
     with c3:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "3",
             key="num3",
             use_container_width=True,
         ):
-
             add_value("3")
 
-
     with c4:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "+",
             key="plus",
             use_container_width=True,
         ):
-
             add_value("+")
 
-
     with c5:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "−",
             key="minus",
             use_container_width=True,
         ):
-
             add_value("−")
 
 
 # =========================================================
 # 0 . EXP ANS =
 # =========================================================
-
 with st.container():
 
     c1, c2, c3, c4, c5 = st.columns(
@@ -1408,111 +1318,70 @@ with st.container():
         gap="small",
     )
 
-
     # -----------------------------------------------------
     # 0
     # -----------------------------------------------------
-
     with c1:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "0",
             key="num0",
             use_container_width=True,
         ):
-
             add_value("0")
-
 
     # -----------------------------------------------------
     # DECIMAL
     # -----------------------------------------------------
-
     with c2:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             ".",
             key="decimal",
             use_container_width=True,
         ):
-
             add_value(".")
-
 
     # -----------------------------------------------------
     # EXP
     # -----------------------------------------------------
-
     with c3:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "EXP",
             key="exp",
             use_container_width=True,
         ):
-
             add_value("e")
-
 
     # -----------------------------------------------------
     # ANS
     # -----------------------------------------------------
-
     with c4:
-
-        st.markdown(
-            '<div class="keypad-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "ANS",
             key="ans",
             use_container_width=True,
         ):
-
             add_value("Ans")
-
 
     # -----------------------------------------------------
     # EQUAL
     # -----------------------------------------------------
-
     with c5:
-
-        st.markdown(
-            '<div class="equal-button"></div>',
-            unsafe_allow_html=True,
-        )
 
         if st.button(
             "=",
             key="equals",
             use_container_width=True,
         ):
-
             calculate()
 
 
 # =========================================================
 # STATUS
 # =========================================================
-
 if st.session_state.calculator_on:
 
     st.markdown(
@@ -1537,7 +1406,6 @@ else:
 # =========================================================
 # CLOSE CALCULATOR
 # =========================================================
-
 st.markdown(
     '</div>',
     unsafe_allow_html=True,
