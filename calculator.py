@@ -1031,20 +1031,40 @@ with st.container():
     
 
     with c2:
-        if st.button(
-            "8",
-            key="num8",
-            use_container_width=True,
-        ):
-            add_value("8")
+        st.markdown(
+        '<div class="keypad-button">',
+        unsafe_allow_html=True,
+    )
+
+    if st.button(
+        "8",
+        key="num8",
+        use_container_width=True,
+    ):
+        add_value("8")
+
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True,
+    )
 
     with c3:
-        if st.button(
-            "9",
-            key="num9",
-            use_container_width=True,
-        ):
-            add_value("9")
+        st.markdown(
+        '<div class="keypad-button">',
+        unsafe_allow_html=True,
+    )
+
+    if st.button(
+        "9",
+        key="num7",
+        use_container_width=True,
+    ):
+        add_value("9")
+
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True,
+    )
 
     with c4:
 
