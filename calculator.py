@@ -1,3 +1,4 @@
+
 import ast
 import math
 import operator
@@ -48,7 +49,6 @@ def add_value(value):
     if not st.session_state.calculator_on:
         return
 
-    # If the current expression is empty, start normally.
     if not st.session_state.expression:
         st.session_state.expression = value
         return
@@ -82,13 +82,11 @@ def toggle_power():
     )
 
     if not st.session_state.calculator_on:
-
         st.session_state.expression = ""
         st.session_state.result = ""
         st.session_state.second_function = False
 
     else:
-
         st.session_state.expression = ""
         st.session_state.result = "0"
 
@@ -97,7 +95,6 @@ def toggle_second():
     """Toggle second/inverse scientific functions."""
 
     if st.session_state.calculator_on:
-
         st.session_state.second_function = (
             not st.session_state.second_function
         )
@@ -196,7 +193,6 @@ def evaluate_node(node):
     if isinstance(node, ast.Constant):
 
         if isinstance(node.value, (int, float)):
-
             return node.value
 
         raise ValueError
@@ -227,11 +223,9 @@ def evaluate_node(node):
     if isinstance(node, ast.UnaryOp):
 
         if isinstance(node.op, ast.UAdd):
-
             return +evaluate_node(node.operand)
 
         if isinstance(node.op, ast.USub):
-
             return -evaluate_node(node.operand)
 
         raise ValueError
@@ -362,7 +356,6 @@ def calculate():
 
         st.session_state.result = str(value)
 
-        # Show calculated result as the current display.
         st.session_state.expression = str(value)
 
     except ZeroDivisionError:
@@ -451,14 +444,12 @@ st.markdown(
         background: #080808;
         border: 1px solid #303030;
         border-radius: 20px;
-
         padding: 20px;
         min-height: 145px;
 
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
-
         text-align: right;
 
         margin: 20px 0;
@@ -485,7 +476,6 @@ st.markdown(
         color: #666;
         font-size: 10px;
         font-weight: 700;
-
         letter-spacing: 2px;
 
         margin: 18px 0 9px 2px;
@@ -513,6 +503,7 @@ st.markdown(
     }
 
     div.stButton > button {
+
         width: 100% !important;
 
         height: 70px !important;
@@ -565,10 +556,11 @@ st.markdown(
 
 
     /* =====================================================
-       ON BUTTON
+       ON / OFF BUTTON
        ===================================================== */
 
-    .on-button div.stButton > button {
+    .on-button + div.stButton > button,
+    .on-button ~ div.stButton > button {
 
         background:
             linear-gradient(
@@ -586,22 +578,13 @@ st.markdown(
             0 8px 14px rgba(0, 0, 0, 0.30) !important;
     }
 
-    .on-button div.stButton > button:hover {
-
-        background:
-            linear-gradient(
-                145deg,
-                #43a047,
-                #2e7d32
-            ) !important;
-    }
-
 
     /* =====================================================
        DEL BUTTON
        ===================================================== */
 
-    .del-button div.stButton > button {
+    .del-button + div.stButton > button,
+    .del-button ~ div.stButton > button {
 
         background:
             linear-gradient(
@@ -619,24 +602,15 @@ st.markdown(
             0 8px 14px rgba(0, 0, 0, 0.30) !important;
     }
 
-    .del-button div.stButton > button:hover {
-
-        background:
-            linear-gradient(
-                145deg,
-                #ef4a4a,
-                #c92525
-            ) !important;
-    }
-
 
     /* =====================================================
        KEYPAD WHITE BUTTONS
        ===================================================== */
 
-    .keypad-button div.stButton > button {
+    .keypad-button + div.stButton > button,
+    .keypad-button ~ div.stButton > button {
 
-        background: #f5f5f5 !important;
+        background: #ffffff !important;
 
         color: #111111 !important;
 
@@ -647,9 +621,10 @@ st.markdown(
             0 8px 14px rgba(0, 0, 0, 0.25) !important;
     }
 
-    .keypad-button div.stButton > button:hover {
+    .keypad-button + div.stButton > button:hover,
+    .keypad-button ~ div.stButton > button:hover {
 
-        background: #ffffff !important;
+        background: #f2f2f2 !important;
 
         color: #111111 !important;
 
@@ -687,7 +662,8 @@ st.markdown(
        EQUAL BUTTON
        ===================================================== */
 
-    .equal-button div.stButton > button {
+    .equal-button + div.stButton > button,
+    .equal-button ~ div.stButton > button {
 
         background:
             linear-gradient(
@@ -715,7 +691,6 @@ st.markdown(
     .status-bar {
 
         display: flex;
-
         justify-content: space-between;
 
         margin-top: 17px;
@@ -835,6 +810,7 @@ with header_col1:
 
     st.markdown("### 🧮")
 
+
 with header_col2:
 
     st.markdown(
@@ -912,7 +888,6 @@ with c1:
     ):
 
         if st.session_state.calculator_on:
-
             st.session_state.mode = "DEG"
 
 
@@ -929,7 +904,6 @@ with c2:
     ):
 
         if st.session_state.calculator_on:
-
             st.session_state.mode = "RAD"
 
 
@@ -955,7 +929,7 @@ with c3:
 with c4:
 
     st.markdown(
-        '<div class="on-button">',
+        '<div class="on-button"></div>',
         unsafe_allow_html=True,
     )
 
@@ -966,11 +940,6 @@ with c4:
     ):
 
         toggle_power()
-
-    st.markdown(
-        '</div>',
-        unsafe_allow_html=True,
-    )
 
 
 # =========================================================
@@ -1151,7 +1120,7 @@ with st.container():
     with c1:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1163,11 +1132,6 @@ with st.container():
 
             add_value("7")
 
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
 
     # -----------------------------------------------------
     # 8
@@ -1176,7 +1140,7 @@ with st.container():
     with c2:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1188,11 +1152,6 @@ with st.container():
 
             add_value("8")
 
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
 
     # -----------------------------------------------------
     # 9
@@ -1201,7 +1160,7 @@ with st.container():
     with c3:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1213,11 +1172,6 @@ with st.container():
 
             add_value("9")
 
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
 
     # -----------------------------------------------------
     # DEL
@@ -1226,7 +1180,7 @@ with st.container():
     with c4:
 
         st.markdown(
-            '<div class="del-button">',
+            '<div class="del-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1238,11 +1192,6 @@ with st.container():
 
             delete_last()
 
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
 
     # -----------------------------------------------------
     # AC
@@ -1251,7 +1200,7 @@ with st.container():
     with c5:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1262,11 +1211,6 @@ with st.container():
         ):
 
             clear_all()
-
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
 
 
 # =========================================================
@@ -1284,7 +1228,7 @@ with st.container():
     with c1:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1296,16 +1240,11 @@ with st.container():
 
             add_value("4")
 
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
 
     with c2:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1317,16 +1256,11 @@ with st.container():
 
             add_value("5")
 
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
 
     with c3:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1338,16 +1272,11 @@ with st.container():
 
             add_value("6")
 
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
 
     with c4:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1359,16 +1288,11 @@ with st.container():
 
             add_value("×")
 
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
 
     with c5:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1379,11 +1303,6 @@ with st.container():
         ):
 
             add_value("÷")
-
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
 
 
 # =========================================================
@@ -1401,7 +1320,7 @@ with st.container():
     with c1:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1413,16 +1332,11 @@ with st.container():
 
             add_value("1")
 
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
 
     with c2:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1434,16 +1348,11 @@ with st.container():
 
             add_value("2")
 
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
 
     with c3:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1455,16 +1364,11 @@ with st.container():
 
             add_value("3")
 
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
 
     with c4:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1476,16 +1380,11 @@ with st.container():
 
             add_value("+")
 
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
 
     with c5:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1496,11 +1395,6 @@ with st.container():
         ):
 
             add_value("−")
-
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
 
 
 # =========================================================
@@ -1522,7 +1416,7 @@ with st.container():
     with c1:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1534,11 +1428,6 @@ with st.container():
 
             add_value("0")
 
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
 
     # -----------------------------------------------------
     # DECIMAL
@@ -1547,7 +1436,7 @@ with st.container():
     with c2:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1559,11 +1448,6 @@ with st.container():
 
             add_value(".")
 
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
 
     # -----------------------------------------------------
     # EXP
@@ -1572,7 +1456,7 @@ with st.container():
     with c3:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1584,11 +1468,6 @@ with st.container():
 
             add_value("e")
 
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
 
     # -----------------------------------------------------
     # ANS
@@ -1597,7 +1476,7 @@ with st.container():
     with c4:
 
         st.markdown(
-            '<div class="keypad-button">',
+            '<div class="keypad-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1609,11 +1488,6 @@ with st.container():
 
             add_value("Ans")
 
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
 
     # -----------------------------------------------------
     # EQUAL
@@ -1622,7 +1496,7 @@ with st.container():
     with c5:
 
         st.markdown(
-            '<div class="equal-button">',
+            '<div class="equal-button"></div>',
             unsafe_allow_html=True,
         )
 
@@ -1633,11 +1507,6 @@ with st.container():
         ):
 
             calculate()
-
-        st.markdown(
-            '</div>',
-            unsafe_allow_html=True,
-        )
 
 
 # =========================================================
