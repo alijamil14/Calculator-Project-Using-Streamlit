@@ -1159,3 +1159,68 @@ with st.container(key="calculator"):
         unsafe_allow_html=True,
     )
 
+
+
+# ============================================================
+# PHYSICAL KEYBOARD SUPPORT
+# ============================================================
+
+st.html(
+    """
+    <script>
+    (() => {
+        // Prevent duplicate keyboard listeners when Streamlit reruns the app.
+        if (window.__calculatorKeyboardHandlerAttached) return;
+        window.__calculatorKeyboardHandlerAttached = true;
+
+        const buttonSelectors = {
+            "0": ".st-key-keypad_0 button",
+            "1": ".st-key-keypad_1 button",
+            "2": ".st-key-keypad_2 button",
+            "3": ".st-key-keypad_3 button",
+            "4": ".st-key-keypad_4 button",
+            "5": ".st-key-keypad_5 button",
+            "6": ".st-key-keypad_6 button",
+            "7": ".st-key-keypad_7 button",
+            "8": ".st-key-keypad_8 button",
+            "9": ".st-key-keypad_9 button",
+            ".": ".st-key-keypad_decimal button",
+            "+": ".st-key-plus-button button",
+            "-": ".st-key-minus-button button",
+            "*": ".st-key-multiply-button button",
+            "/": ".st-key-divide-button button",
+            "(": ".st-key-keypad_open button",
+            ")": ".st-key-keypad_close button",
+            "%": ".st-key-scientific_percent button",
+            "^": ".st-key-scientific_power button",
+            "!": ".st-key-scientific_factorial button",
+            "Enter": ".st-key-equal-button button",
+            "=": ".st-key-equal-button button",
+            "Backspace": ".st-key-delete-button button",
+            "Escape": ".st-key-keypad_ac button",
+        };
+
+        document.addEventListener("keydown", (event) => {
+            // Do not interfere with typing in any editable field.
+            const target = event.target;
+            if (
+                target && (
+                    target.isContentEditable ||
+                    ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)
+                )
+            ) return;
+
+            const selector = buttonSelectors[event.key];
+            if (!selector) return;
+
+            const button = document.querySelector(selector);
+            if (!button || button.disabled) return;
+
+            event.preventDefault();
+            button.click();
+        });
+    })();
+    </script>
+    """,
+    unsafe_allow_javascript=True,
+)
