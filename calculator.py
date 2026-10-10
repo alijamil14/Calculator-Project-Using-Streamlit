@@ -611,7 +611,7 @@ with st.container(key="calculator"):
     st.markdown(
     """
     <div class="calculator-header">
-        <div class="calculator-logo">🧮</div>
+        <div class="calculator-logo">🧮  Ali Jamil</div>
 
         <h1 class="calculator-title">
             Scientific Calculator
@@ -633,21 +633,17 @@ with st.container(key="calculator"):
 
     st.markdown(
         f"""
-        <div class="display-screen">
-
-            <div class="display-expression">
-                {st.session_state.expression}
-            </div>
-
-            <div class="display-result">
-                {st.session_state.result}
-            </div>
-
+    <div class="calculator-display">
+        <div class="display-expression">
+            {st.session_state.expression}
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
+        <div class="display-result">
+            {st.session_state.result}
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
     # --------------------------------------------------------
     # CONTROL BUTTONS
