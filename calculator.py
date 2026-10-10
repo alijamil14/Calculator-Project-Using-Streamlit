@@ -32,6 +32,7 @@ html_app = r"""
   .science{background:#18221c;color:#f4faf5;border-color:#354b3b;min-height:36px;padding:3px 1px;font-size:12px}
   .number{background:#111412;color:#fff;border-color:#303a33}
   .operator,.equals{background:#F79422;color:#17110a;border-color:#ffb65f;font-size:18px}
+  .keypad .equals{grid-column:span 3}
   .history{margin:0}
   .history-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
   .history-item{border:1px solid #273e30;background:#0b1510;border-radius:10px;padding:9px 10px;min-width:0}
@@ -75,7 +76,8 @@ html_app = r"""
         <button class="number" data-value="7">7</button><button class="number" data-value="8">8</button><button class="number" data-value="9">9</button><button class="operator" data-value="+">+</button>
         <button class="number" data-value="4">4</button><button class="number" data-value="5">5</button><button class="number" data-value="6">6</button><button class="operator" data-value="-">−</button>
         <button class="number" data-value="1">1</button><button class="number" data-value="2">2</button><button class="number" data-value="3">3</button><button class="operator" data-value="*">×</button>
-        <button class="number" data-value=".">.</button><button class="number" data-value="0">0</button><button class="equals" data-action="equals">=</button><button class="operator" data-value="/">÷</button>
+        <button class="number" data-value=".">.</button><button class="number" data-value="0">0</button><button class="number" data-value="(">(</button><button class="number" data-value=")">)</button>
+        <button class="equals" data-action="equals">=</button><button class="operator" data-value="/">÷</button>
       </div>
     </section>
   </div>
@@ -156,12 +158,40 @@ html_app = r"""
    else if(v==='DEG'||v==='RAD'){angle=v;paint();}
    else if(v){if(second&&v==='sin(')add('asin(');else if(second&&v==='cos(')add('acos(');else if(second&&v==='tan(')add('atan(');else add(v);}
  });
- document.addEventListener('keydown',e=>{
-   if(e.ctrlKey||e.metaKey||e.altKey)return;
-   if(e.key==='Enter'||e.key==='='){e.preventDefault();calculate();return;}
-   if(e.key==='Backspace'){e.preventDefault();del();return;}
-   if(e.key==='Escape'){e.preventDefault();clear();return;}
-   if(/^[0-9.+\-*/()%^!]$/.test(e.key)){e.preventDefault();add(e.key);}
+ // Listen on the parent Streamlit page so laptop keys work without iframe focus.
+ const keyboardDocument = window.parent && window.parent.document
+   ? window.parent.document
+   : document;
+ keyboardDocument.addEventListener('keydown', e => {
+   if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+   const active = keyboardDocument.activeElement;
+   const editingText = active && (
+     active.tagName === 'INPUT' ||
+     active.tagName === 'TEXTAREA' ||
+     active.isContentEditable
+   );
+   if (editingText) return;
+
+   if (e.key === 'Enter' || e.key === '=') {
+     e.preventDefault();
+     calculate();
+     return;
+   }
+   if (e.key === 'Backspace' || e.key === 'Delete') {
+     e.preventDefault();
+     del();
+     return;
+   }
+   if (e.key === 'Escape') {
+     e.preventDefault();
+     clear();
+     return;
+   }
+   if (/^[0-9.+\\-*/()%^!]$/.test(e.key)) {
+     e.preventDefault();
+     add(e.key);
+   }
  });
  paint();
 })();
