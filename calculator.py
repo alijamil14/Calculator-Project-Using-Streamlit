@@ -124,29 +124,29 @@ def calculate():
 # -------------------- Compact professional styling --------------------
 st.markdown("""
 <style>
-.stApp {background:radial-gradient(ellipse at 10% 0%,#202b40 0%,#0a0f1b 55%,#06080e 100%);color:#f8fafc}
-.block-container {max-width:980px;padding-top:1rem;padding-bottom:1rem}
-.brand {font-size:12px;letter-spacing:3px;font-weight:800;color:#b9c5d8}
-.title {font-size:30px;line-height:1.15;font-weight:850;color:#fff;margin:2px 0 3px}
-.subtitle {font-size:10px;letter-spacing:2.5px;color:#a6b2c7}
-.screen {background:linear-gradient(140deg,#020304,#15121a 65%,#080a0e);border:1px solid #3b3039;border-radius:14px;padding:14px 17px;min-height:94px;text-align:right;box-shadow:inset 0 0 22px #000;margin:10px 0}
-.expr {color:#aeb9c9;min-height:20px;font-size:14px;overflow-wrap:anywhere}
-.output {font-size:32px;line-height:1.2;font-weight:800;color:#ff3b49;text-shadow:0 0 5px #ff2635,0 0 17px #ed1b32aa;overflow-wrap:anywhere}
-.panel {background:#101725;border:1px solid #2d394d;border-radius:14px;padding:11px}
-.panel-title {font-size:11px;letter-spacing:1.7px;color:#aab7cb;font-weight:800;margin:2px 0 9px}
-div.stButton>button {min-height:38px;border-radius:9px;font-weight:750;border:1px solid #344055;transition:all .12s ease}
-div.stButton>button:hover {transform:translateY(-1px);border-color:#9aa9c0}
-div.stButton>button[kind="secondary"] {background:#171f2d;color:#fff}
-.utility div.stButton>button {background:#263043!important;color:#fff!important}
-.operator div.stButton>button {background:#d72d3b!important;color:#fff!important;border-color:#f05260!important}
-.equal div.stButton>button {background:#d72d3b!important;color:#fff!important}
-.science div.stButton>button {background:#202a3a!important;color:#f8fafc!important;min-height:35px;font-size:12px}
-.history-item {background:#0c1220;border:1px solid #273247;border-radius:9px;padding:9px;margin-bottom:7px}
-.history-expression {font-size:12px;color:#9eabc0;overflow-wrap:anywhere}
-.history-result {font-size:17px;font-weight:800;color:#ff4b58;overflow-wrap:anywhere}
-.status-on {color:#22c55e;font-size:12px;font-weight:800}
-.status-off {color:#ef4444;font-size:12px;font-weight:800}
-@media(max-width:700px) {.block-container{padding:.6rem}.title{font-size:25px}.panel{padding:8px}}
+.stApp {background:linear-gradient(135deg,#d9e0eb 0%,#aebbd0 100%);color:#101522}
+.block-container {max-width:1040px;padding-top:1.1rem;padding-bottom:1.2rem}
+.brand {font-size:12px;letter-spacing:3px;font-weight:800;color:#4d5870}
+.title {font-size:30px;line-height:1.15;font-weight:850;color:#141925;margin:2px 0 3px}
+.subtitle {font-size:10px;letter-spacing:2.5px;color:#59647a}
+.screen {background:linear-gradient(145deg,#030405,#111318 70%,#050607);border:1px solid #414550;border-radius:23px;padding:20px 20px 17px;min-height:120px;text-align:right;box-shadow:0 10px 24px #10152235,inset 0 0 20px #000;margin:10px 0 12px}
+.expr {color:#a7adbb;min-height:22px;font-size:14px;overflow-wrap:anywhere}
+.output {font-size:clamp(34px,4vw,46px);line-height:1.2;font-weight:500;color:#ff424e;text-shadow:0 0 4px #ff2635,0 0 13px #ed1b3280;overflow-wrap:anywhere}
+.panel {background:rgba(244,247,252,.72);border:1px solid #c2cada;border-radius:24px;padding:14px;box-shadow:0 8px 22px #24314a20}
+.panel-title {font-size:11px;letter-spacing:1.7px;color:#59647a;font-weight:800;margin:2px 0 9px}
+div.stButton>button {min-height:45px;border-radius:15px;font-weight:650;font-size:16px;border:1px solid #c7cfdf;background:linear-gradient(145deg,#f9fbff,#d9dfeb);color:#182033;box-shadow:0 3px 6px #1c294020;transition:all .12s ease}
+div.stButton>button:hover {transform:translateY(-1px);border-color:#a8b2c6;box-shadow:0 5px 9px #1c294030}
+div.stButton>button:disabled {opacity:.45}
+.utility div.stButton>button {background:linear-gradient(145deg,#f8faff,#dce2ee)!important;color:#20283a!important;border-radius:16px!important}
+.operator div.stButton>button {background:linear-gradient(145deg,#ffad48,#e87916)!important;color:#fff!important;border-color:#e58a2c!important;border-radius:16px!important;box-shadow:0 3px 7px #b65c2435!important}
+.equal div.stButton>button {background:linear-gradient(145deg,#ffad48,#e87916)!important;color:#fff!important;border-color:#e58a2c!important;border-radius:16px!important}
+.science div.stButton>button {background:linear-gradient(145deg,#eef2fa,#cdd5e5)!important;color:#20283a!important;min-height:40px;font-size:13px;border-radius:15px!important}
+.history-item {background:#f4f6fb;border:1px solid #d2d9e7;border-radius:13px;padding:10px;margin-bottom:8px}
+.history-expression {font-size:12px;color:#667085;overflow-wrap:anywhere}
+.history-result {font-size:17px;font-weight:800;color:#d94835;overflow-wrap:anywhere}
+.status-on {color:#168447;font-size:11px;font-weight:800}
+.status-off {color:#c72c3b;font-size:11px;font-weight:800}
+@media(max-width:700px) {.block-container{padding:.55rem}.title{font-size:25px}.panel{padding:9px}.screen{padding:15px;min-height:100px}div.stButton>button{min-height:40px;font-size:14px;border-radius:13px}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -197,7 +197,7 @@ with calculator_col:
     scientific_col, keypad_col = st.columns([1, 1.12], gap="small")
 
     with scientific_col:
-        st.markdown('<div class="panel-title">SCIENTIFIC</div>', unsafe_allow_html=True)
+        
         mode_cols = st.columns(2, gap="small")
         with mode_cols[0]:
             if st.button("DEG", key="mode_deg", use_container_width=True):
@@ -243,7 +243,7 @@ with calculator_col:
                     st.markdown('</div>', unsafe_allow_html=True)
 
     with keypad_col:
-        st.markdown('<div class="panel-title">KEYPAD</div>', unsafe_allow_html=True)
+        
         keypad_rows = [
             [("7", "7", "n"), ("8", "8", "n"), ("9", "9", "n"), ("+", "+", "op")],
             [("4", "4", "n"), ("5", "5", "n"), ("6", "6", "n"), ("−", "-", "op")],
@@ -264,7 +264,7 @@ with calculator_col:
                     st.markdown('</div>', unsafe_allow_html=True)
 
 with history_col:
-    st.markdown('<div class="panel-title">HISTORY</div>', unsafe_allow_html=True)
+    
     if st.session_state.history:
         if st.button("Clear history", key="clear_history", use_container_width=True):
             st.session_state.history = []
@@ -297,7 +297,7 @@ def keyboard_submit():
 st.text_input(
     "Keyboard expression",
     key="keyboard_expression",
-    placeholder="Type expression and press Enter (e.g. 9*6 or sin(30))",
+    placeholder="Keyboard input",
     label_visibility="collapsed",
     on_change=keyboard_submit,
     disabled=not st.session_state.calculator_on,
