@@ -34,12 +34,12 @@ html_app = r"""
   .operator,.equals{background:#F79422;color:#17110a;border-color:#ffb65f;font-size:18px}
   .keypad .equals{grid-column:span 3}
   .history{margin:0}
-  .history-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+  .history-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;width:100%}
   .history-item{border:1px solid #273e30;background:#0b1510;border-radius:10px;padding:9px 10px;min-width:0}
   .history-expr{color:#c5d3c9;font-size:12px;overflow-wrap:anywhere}
   .history-result{color:#ff4a57;font-weight:800;font-size:17px;overflow-wrap:anywhere}
   .hint{font-size:11px;color:#809487;margin-top:9px;text-align:center}
-  @media(max-width:760px){.title{font-size:25px}.workspace{grid-template-columns:1fr}.columns{grid-template-columns:1.18fr 1fr}.science-grid{gap:6px}.keypad{gap:7px}.history-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.result{font-size:30px}}
+  @media(max-width:700px){.title{font-size:25px}.workspace{grid-template-columns:1fr}.columns{grid-template-columns:1.18fr 1fr}.science-grid{gap:6px}.keypad{gap:7px}.history-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.history-panel{min-height:180px}.result{font-size:30px}}
   @media(max-width:480px){.columns{grid-template-columns:1fr}.history-grid{grid-template-columns:1fr}}
 </style>
 <div class="shell">
