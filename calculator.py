@@ -607,7 +607,7 @@ with st.container(key="calculator"):
     st.html(
     """
     <div class="calculator-header">
-        <div class="calculator-logo">🧮  Ali Jamil</div>
+        <div class="calculator-logo">🧮</div>
 
         <h1 class="calculator-title">
             Scientific Calculator
