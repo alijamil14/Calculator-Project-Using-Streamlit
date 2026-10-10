@@ -1,6 +1,8 @@
 import ast
 import math
 import operator
+import re
+from html import escape
 
 import streamlit as st
 
@@ -35,6 +37,9 @@ if "calculator_on" not in st.session_state:
 if "answer" not in st.session_state:
     st.session_state.answer = 0
 
+if "memory" not in st.session_state:
+    st.session_state.memory = 0
+
 if "second_function" not in st.session_state:
     st.session_state.second_function = False
 
@@ -44,10 +49,22 @@ if "second_function" not in st.session_state:
 # ============================================================
 
 def add_value(value):
+    """Append a calculator key to the current expression."""
     if not st.session_state.calculator_on:
         return
 
-    st.session_state.expression += str(value)
+    # Start a fresh expression after a completed calculation when a new
+    # number or function is entered; operators continue from the answer.
+    value = str(value)
+    if st.session_state.result == "Error":
+        st.session_state.expression = ""
+        st.session_state.result = ""
+
+    if st.session_state.expression and st.session_state.expression == format_number(st.session_state.answer):
+        if value in "0123456789." or value in ("π", "e", "sin(", "cos(", "tan(", "sin⁻¹(", "cos⁻¹(", "tan⁻¹(", "log(", "ln(", "√(", "("):
+            st.session_state.expression = ""
+
+    st.session_state.expression += value
     st.session_state.result = st.session_state.expression
 
 
@@ -59,22 +76,58 @@ def clear_all():
 def delete_last():
     if st.session_state.expression:
         st.session_state.expression = st.session_state.expression[:-1]
-
     st.session_state.result = st.session_state.expression
 
 
 def toggle_power():
     st.session_state.calculator_on = not st.session_state.calculator_on
-
     if not st.session_state.calculator_on:
         st.session_state.expression = ""
         st.session_state.result = ""
 
 
 def toggle_second():
-    st.session_state.second_function = (
-        not st.session_state.second_function
-    )
+    st.session_state.second_function = not st.session_state.second_function
+
+
+def current_numeric_value():
+    """Return the current expression/result as a number, or last answer."""
+    text = st.session_state.expression.strip()
+    if text:
+        return evaluate_expression(text)
+    return float(st.session_state.answer)
+
+
+def memory_add():
+    if not st.session_state.calculator_on:
+        return
+    try:
+        st.session_state.memory += current_numeric_value()
+        st.session_state.result = f"M = {format_number(st.session_state.memory)}"
+    except Exception:
+        st.session_state.result = "Enter a valid value first"
+
+
+def memory_recall():
+    if st.session_state.calculator_on:
+        st.session_state.expression = ""
+        st.session_state.result = ""
+        add_value(format_number(st.session_state.memory))
+
+
+def memory_clear():
+    st.session_state.memory = 0
+    st.session_state.result = "Memory cleared"
+
+
+def format_number(value):
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            raise ValueError("Result is not finite")
+        if value.is_integer():
+            return str(int(value))
+        return format(value, ".12g")
+    return str(value)
 
 
 # ============================================================
@@ -130,6 +183,8 @@ def atan_func(value):
 
 
 def factorial(value):
+    if not math.isfinite(float(value)) or float(value) < 0 or not float(value).is_integer():
+        raise ValueError("Factorial requires a non-negative integer")
     return math.factorial(int(value))
 
 
@@ -156,23 +211,19 @@ FUNCTIONS = {
 # ============================================================
 
 def evaluate_node(node):
-
     if isinstance(node, ast.Constant):
-
-        if isinstance(node.value, (int, float)):
+        if isinstance(node.value, (int, float)) and not isinstance(node.value, bool):
             return node.value
-
         raise ValueError("Invalid value")
 
+    # Compatibility with Python versions where numeric literals use ast.Num.
     if isinstance(node, ast.Num):
         return node.n
 
     if isinstance(node, ast.BinOp):
-
         left = evaluate_node(node.left)
         right = evaluate_node(node.right)
-
-        operators = {
+        allowed_operators = {
             ast.Add: operator.add,
             ast.Sub: operator.sub,
             ast.Mult: operator.mul,
@@ -180,105 +231,129 @@ def evaluate_node(node):
             ast.Pow: operator.pow,
             ast.Mod: operator.mod,
         }
-
-        operation = operators.get(type(node.op))
-
+        operation = allowed_operators.get(type(node.op))
         if operation is None:
             raise ValueError("Invalid operator")
-
-        return operation(left, right)
+        result = operation(left, right)
+        if isinstance(result, complex):
+            raise ValueError("Complex results are not supported")
+        if isinstance(result, float) and not math.isfinite(result):
+            raise ValueError("Result is outside the supported range")
+        return result
 
     if isinstance(node, ast.UnaryOp):
-
         value = evaluate_node(node.operand)
-
         if isinstance(node.op, ast.USub):
             return -value
-
         if isinstance(node.op, ast.UAdd):
             return +value
-
         raise ValueError("Invalid unary operator")
 
     if isinstance(node, ast.Name):
-
-        constants = {
-            "pi": math.pi,
-            "e": math.e,
-        }
-
+        constants = {"pi": math.pi, "e": math.e}
         if node.id in constants:
             return constants[node.id]
-
         raise ValueError("Invalid constant")
 
     if isinstance(node, ast.Call):
-
         if not isinstance(node.func, ast.Name):
             raise ValueError("Invalid function")
-
         function_name = node.func.id
-
-        if function_name not in FUNCTIONS:
+        if function_name not in FUNCTIONS or node.keywords:
             raise ValueError("Function not allowed")
-
-        arguments = [
-            evaluate_node(argument)
-            for argument in node.args
-        ]
-
+        arguments = [evaluate_node(argument) for argument in node.args]
         return FUNCTIONS[function_name](*arguments)
 
     raise ValueError("Invalid expression")
 
 
+def convert_factorials(expression):
+    """Convert postfix factorials (5!, (2+3)!) into safe factorial(...) calls."""
+    while "!" in expression:
+        bang = expression.find("!")
+        end = bang - 1
+        while end >= 0 and expression[end].isspace():
+            end -= 1
+        if end < 0:
+            raise ValueError("Missing factorial operand")
+
+        if expression[end] == ")":
+            depth = 1
+            start = end - 1
+            while start >= 0 and depth:
+                if expression[start] == ")":
+                    depth += 1
+                elif expression[start] == "(":
+                    depth -= 1
+                start -= 1
+            if depth:
+                raise ValueError("Unmatched parentheses")
+            start += 1
+            # Include a function name before the opening parenthesis, e.g. sin(30)!
+            name_end = start - 1
+            name_start = name_end
+            while name_start >= 0 and (expression[name_start].isalnum() or expression[name_start] == "_"):
+                name_start -= 1
+            if name_start + 1 <= name_end and expression[name_start + 1:name_end + 1] in FUNCTIONS:
+                start = name_start + 1
+        elif expression[end].isdigit() or expression[end] == ".":
+            start = end
+            while start >= 0 and (expression[start].isdigit() or expression[start] == "."):
+                start -= 1
+            start += 1
+        else:
+            raise ValueError("Invalid factorial operand")
+
+        operand = expression[start:end + 1].strip()
+        expression = expression[:start] + f"factorial({operand})" + expression[bang + 1:]
+    return expression
+
+
 def evaluate_expression(expression):
+    expression = expression.strip()
+    if not expression:
+        raise ValueError("Enter an expression")
 
-    expression = expression.replace("×", "*")
-    expression = expression.replace("÷", "/")
-    expression = expression.replace("−", "-")
+    expression = expression.replace("×", "*").replace("÷", "/").replace("−", "-")
+    expression = expression.replace("π", "pi").replace("√(", "sqrt(")
+    expression = expression.replace("sin⁻¹", "asin").replace("cos⁻¹", "acos").replace("tan⁻¹", "atan")
     expression = expression.replace("^", "**")
+    expression = convert_factorials(expression)
 
-    expression = expression.replace("π", "pi")
+    # Percent is a postfix percentage key: 25% becomes 25/100.
+    expression = re.sub(r"(?<=[0-9.)])%", "/100", expression)
+    if "%" in expression:
+        raise ValueError("Invalid percentage")
 
-    expression = expression.replace("√(", "sqrt(")
-
-    expression = expression.replace("sin⁻¹", "asin")
-    expression = expression.replace("cos⁻¹", "acos")
-    expression = expression.replace("tan⁻¹", "atan")
-
-    expression = expression.replace("%", "/100")
+    # Support common implicit multiplication, e.g. 2π, 2(3+4), (2+3)(4+5).
+    expression = re.sub(r"(?<=[0-9)])(?=pi\b|e\b(?![+-]?\d)|\()", "*", expression)
+    expression = re.sub(r"(?<=\))(?=[A-Za-z])", "*", expression)
+    expression = re.sub(r"(?<=[0-9)])(?=(?:sin|cos|tan|asin|acos|atan|sqrt|log|ln)\()", "*", expression)
 
     tree = ast.parse(expression, mode="eval")
-
-    return evaluate_node(tree.body)
+    value = evaluate_node(tree.body)
+    if isinstance(value, float) and not math.isfinite(value):
+        raise ValueError("Result is not finite")
+    return value
 
 
 def calculate():
-
     if not st.session_state.calculator_on:
         return
-
-    expression = st.session_state.expression
-
+    expression = st.session_state.expression.strip()
     if not expression:
         return
-
     try:
-
         value = evaluate_expression(expression)
-
         st.session_state.answer = value
-
-        if isinstance(value, float):
-            if value.is_integer():
-                value = int(value)
-
-        st.session_state.result = str(value)
-        st.session_state.expression = str(value)
-
+        st.session_state.result = format_number(value)
+        st.session_state.expression = format_number(value)
+    except ZeroDivisionError:
+        st.session_state.result = "Cannot divide by zero"
+    except (SyntaxError, ValueError, TypeError, OverflowError) as error:
+        st.session_state.result = str(error) if str(error) else "Invalid expression"
     except Exception:
-        st.session_state.result = "Error"
+        st.session_state.result = "Calculation error"
 
 
 # ============================================================
@@ -298,9 +373,9 @@ st.markdown(
     }
 
     .block-container {
-        max-width: 1050px;
-        padding-top: 30px;
-        padding-bottom: 40px;
+        max-width: 790px;
+        padding-top: 14px;
+        padding-bottom: 18px;
     }
 
 
@@ -310,8 +385,8 @@ st.markdown(
 
     .st-key-calculator {
         background: #ffffff;
-        padding: 30px;
-        border-radius: 28px;
+        padding: 18px;
+        border-radius: 22px;
         box-shadow:
             0 20px 60px rgba(0, 0, 0, 0.15);
         border: 1px solid #e5e7eb;
@@ -324,16 +399,16 @@ st.markdown(
 
     .calculator-header {
         text-align: center;
-        margin-bottom: 24px;
+        margin-bottom: 14px;
     }
 
     .calculator-logo {
-        font-size: 48px;
+        font-size: 34px;
         margin-bottom: 5px;
     }
 
     .calculator-title {
-        font-size: 34px;
+        font-size: 23px;
         font-weight: 800;
         color: #111827;
         margin: 0;
@@ -341,8 +416,8 @@ st.markdown(
 
     .calculator-subtitle {
         color: #6b7280;
-        font-size: 13px;
-        letter-spacing: 3px;
+        font-size: 11px;
+        letter-spacing: 2px;
         margin-top: 6px;
     }
 
@@ -354,9 +429,9 @@ st.markdown(
     .display-screen {
         background: #080b0d;
         border-radius: 18px;
-        min-height: 125px;
-        padding: 20px 25px;
-        margin-bottom: 20px;
+        min-height: 88px;
+        padding: 13px 18px;
+        margin-bottom: 12px;
         border: 2px solid #20262b;
         box-shadow:
             inset 0 0 25px rgba(0, 0, 0, 0.8),
@@ -369,14 +444,14 @@ st.markdown(
 
     .display-expression {
         color: #8ca294;
-        font-size: 16px;
-        min-height: 24px;
+        font-size: 13px;
+        min-height: 18px;
         margin-bottom: 5px;
     }
 
     .display-result {
         color: #39ff72;
-        font-size: 40px;
+        font-size: 31px;
         font-weight: 700;
         letter-spacing: 1px;
         text-shadow:
@@ -386,6 +461,9 @@ st.markdown(
         white-space: nowrap;
     }
 
+    .display-expression, .display-result {
+        overflow-wrap: anywhere;
+    }
 
     /* -------------------------------------------------------
        GENERAL BUTTON STYLE
@@ -393,9 +471,9 @@ st.markdown(
 
     div.stButton > button {
         width: 100%;
-        min-height: 48px;
+        min-height: 40px;
         border-radius: 10px;
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 700;
         transition: all 0.15s ease;
     }
@@ -434,8 +512,8 @@ st.markdown(
 
     .st-key-scientific-panel {
         background: #f8fafc;
-        padding: 18px;
-        border-radius: 18px;
+        padding: 12px;
+        border-radius: 14px;
         border: 1px solid #e5e7eb;
     }
 
@@ -465,8 +543,8 @@ st.markdown(
 
     .st-key-keypad-panel {
         background: #f8fafc;
-        padding: 18px;
-        border-radius: 18px;
+        padding: 12px;
+        border-radius: 14px;
         border: 1px solid #e5e7eb;
     }
 
@@ -546,7 +624,7 @@ st.markdown(
 
     .panel-title {
         text-align: center;
-        font-size: 18px;
+        font-size: 15px;
         font-weight: 800;
         color: #111827;
         margin-bottom: 15px;
@@ -560,16 +638,16 @@ st.markdown(
     @media (max-width: 768px) {
 
         .block-container {
-            padding: 15px;
+            padding: 10px;
         }
 
         .st-key-calculator {
-            padding: 18px;
-            border-radius: 20px;
+            padding: 12px;
+            border-radius: 16px;
         }
 
         .calculator-title {
-            font-size: 27px;
+            font-size: 23px;
         }
 
         .calculator-subtitle {
@@ -578,12 +656,12 @@ st.markdown(
         }
 
         .display-result {
-            font-size: 30px;
+            font-size: 26px;
         }
 
         div.stButton > button {
-            min-height: 44px;
-            font-size: 14px;
+            min-height: 40px;
+            font-size: 13px;
         }
 
     }
@@ -607,7 +685,7 @@ with st.container(key="calculator"):
     st.html(
     """
     <div class="calculator-header">
-        <div class="calculator-logo">🧮</div>
+        <div class="calculator-logo">🧮  Ali Jamil</div>
 
         <h1 class="calculator-title">
             Scientific Calculator
@@ -631,11 +709,11 @@ with st.container(key="calculator"):
         <div class="display-screen">
 
             <div class="display-expression">
-                {st.session_state.expression}
+                {escape(str(st.session_state.expression))}
             </div>
 
             <div class="display-result">
-                {st.session_state.result}
+                {escape(str(st.session_state.result))}
             </div>
 
         </div>
@@ -701,7 +779,7 @@ with st.container(key="calculator"):
                 toggle_power()
 
 
-    st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
 
 
     # ========================================================
@@ -733,7 +811,7 @@ with st.container(key="calculator"):
 
             with col1:
                 if st.button(
-                    "2nd",
+                    "2nd ✓" if st.session_state.second_function else "2nd",
                     key="scientific_second",
                     use_container_width=True,
                 ):
@@ -741,7 +819,7 @@ with st.container(key="calculator"):
 
             with col2:
                 if st.button(
-                    "sin",
+                    "sin⁻¹" if st.session_state.second_function else "sin",
                     key="scientific_sin",
                     use_container_width=True,
                 ):
@@ -753,7 +831,7 @@ with st.container(key="calculator"):
 
             with col3:
                 if st.button(
-                    "cos",
+                    "cos⁻¹" if st.session_state.second_function else "cos",
                     key="scientific_cos",
                     use_container_width=True,
                 ):
@@ -769,7 +847,7 @@ with st.container(key="calculator"):
 
             with col1:
                 if st.button(
-                    "tan",
+                    "tan⁻¹" if st.session_state.second_function else "tan",
                     key="scientific_tan",
                     use_container_width=True,
                 ):
@@ -889,7 +967,7 @@ with st.container(key="calculator"):
                     key="scientific_exp",
                     use_container_width=True,
                 ):
-                    add_value("e")
+                    add_value("×10^")
 
             with col2:
                 if st.button(
@@ -905,7 +983,18 @@ with st.container(key="calculator"):
                     key="scientific_memory",
                     use_container_width=True,
                 ):
-                    pass
+                    memory_add()
+
+            # ROW 7 — memory recall and reset
+            col1, col2, col3 = st.columns(3, gap="small")
+            with col1:
+                if st.button("MR", key="scientific_memory_recall", use_container_width=True):
+                    memory_recall()
+            with col2:
+                if st.button("MC", key="scientific_memory_clear", use_container_width=True):
+                    memory_clear()
+            with col3:
+                st.caption("Memory")
 
 
     # ========================================================
