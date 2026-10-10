@@ -24,7 +24,7 @@ if "expression" not in st.session_state:
     st.session_state.expression = ""
 
 if "result" not in st.session_state:
-    st.session_state.result = "0"
+    st.session_state.result = ""
 
 if "mode" not in st.session_state:
     st.session_state.mode = "DEG"
@@ -53,18 +53,14 @@ def add_value(value):
 
 def clear_all():
     st.session_state.expression = ""
-    st.session_state.result = "0"
+    st.session_state.result = ""
 
 
 def delete_last():
     if st.session_state.expression:
         st.session_state.expression = st.session_state.expression[:-1]
 
-    st.session_state.result = (
-        st.session_state.expression
-        if st.session_state.expression
-        else "0"
-    )
+    st.session_state.result = st.session_state.expression
 
 
 def toggle_power():
@@ -72,7 +68,7 @@ def toggle_power():
 
     if not st.session_state.calculator_on:
         st.session_state.expression = ""
-        st.session_state.result = "0"
+        st.session_state.result = ""
 
 
 def toggle_second():
@@ -608,7 +604,7 @@ with st.container(key="calculator"):
 # HEADER
 # ============================================================
 
-    st.markdown(
+    st.html(
     """
     <div class="calculator-header">
         <div class="calculator-logo">🧮  Ali Jamil</div>
@@ -621,8 +617,7 @@ with st.container(key="calculator"):
             ADVANCED CALCULATION SYSTEM
         </div>
     </div>
-    """,
-    unsafe_allow_html=True,
+    """
 )
 
 
@@ -631,19 +626,22 @@ with st.container(key="calculator"):
     # DISPLAY
     # --------------------------------------------------------
 
-    st.markdown(
+    st.html(
         f"""
-    <div class="calculator-display">
-        <div class="display-expression">
-            {st.session_state.expression}
+        <div class="display-screen">
+
+            <div class="display-expression">
+                {st.session_state.expression}
+            </div>
+
+            <div class="display-result">
+                {st.session_state.result}
+            </div>
+
         </div>
-        <div class="display-result">
-            {st.session_state.result}
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+        """
+    )
+
 
     # --------------------------------------------------------
     # CONTROL BUTTONS
