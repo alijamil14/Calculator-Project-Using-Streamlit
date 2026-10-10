@@ -188,7 +188,7 @@ html_app = r"""
      clear();
      return;
    }
-   if (/^[0-9.+\\-*/()%^!]$/.test(e.key)) {
+   if (/^[0-9.+*/()%^!-]$/.test(e.key)) {
      e.preventDefault();
      add(e.key);
    }
