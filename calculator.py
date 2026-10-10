@@ -352,8 +352,10 @@ def calculate():
         st.session_state.result = "Cannot divide by zero"
     except (SyntaxError, ValueError, TypeError, OverflowError) as error:
         st.session_state.result = str(error) if str(error) else "Invalid expression"
-    except Exception:
-        st.session_state.result = "Calculation error"
+    except Exception as error:
+        # Keep the real reason visible so unexpected calculation problems
+        # can be identified instead of hiding them behind a generic message.
+        st.session_state.result = f"Error: {type(error).__name__}: {error}"
 
 
 # ============================================================
