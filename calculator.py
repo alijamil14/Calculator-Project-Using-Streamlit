@@ -7,10 +7,10 @@ html_app = r"""
 <div id="ajcalc">
 <style>
   #ajcalc{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#f7faf8}
-  .shell{max-width:1050px;margin:0 auto}
-  .workspace{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(220px,.85fr);gap:18px;align-items:start}
+  .shell{width:100%;max-width:1180px;margin:0 auto}
+  .workspace{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(240px,.8fr);gap:18px;align-items:start;width:100%}
   .calculator-panel{min-width:0}
-  .history-panel{min-width:0;border:1px solid #273e30;background:linear-gradient(155deg,#0c1711,#080d0a);border-radius:15px;padding:13px;min-height:160px}
+  .history-panel{display:block;min-width:0;border:1px solid #273e30;background:linear-gradient(155deg,#0c1711,#080d0a);border-radius:15px;padding:13px;min-height:160px;align-self:stretch}
   .brand{text-align:center;font-size:13px;font-weight:800;letter-spacing:4px;color:#e8f1eb}
   .title{text-align:center;font-size:31px;font-weight:850;line-height:1.12;margin:2px 0;color:#fff}
   .subtitle{text-align:center;font-size:10px;letter-spacing:3px;color:#b2c9bb;margin:7px 0 18px}
@@ -198,4 +198,4 @@ html_app = r"""
 </script>
 </div>
 """
-components.html(html_app, height=850, scrolling=True)
+components.html(html_app, height=900, scrolling=True)
