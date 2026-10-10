@@ -7,7 +7,10 @@ html_app = r"""
 <div id="ajcalc">
 <style>
   #ajcalc{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#f7faf8}
-  .shell{max-width:820px;margin:0 auto}
+  .shell{max-width:1050px;margin:0 auto}
+  .workspace{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(220px,.85fr);gap:18px;align-items:start}
+  .calculator-panel{min-width:0}
+  .history-panel{min-width:0;border:1px solid #273e30;background:linear-gradient(155deg,#0c1711,#080d0a);border-radius:15px;padding:13px;min-height:160px}
   .brand{text-align:center;font-size:13px;font-weight:800;letter-spacing:4px;color:#e8f1eb}
   .title{text-align:center;font-size:31px;font-weight:850;line-height:1.12;margin:2px 0;color:#fff}
   .subtitle{text-align:center;font-size:10px;letter-spacing:3px;color:#b2c9bb;margin:7px 0 18px}
@@ -29,18 +32,21 @@ html_app = r"""
   .science{background:#18221c;color:#f4faf5;border-color:#354b3b;min-height:36px;padding:3px 1px;font-size:12px}
   .number{background:#111412;color:#fff;border-color:#303a33}
   .operator,.equals{background:#F79422;color:#17110a;border-color:#ffb65f;font-size:18px}
-  .history{margin-top:18px}
-  .history-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .history{margin:0}
+  .history-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
   .history-item{border:1px solid #273e30;background:#0b1510;border-radius:10px;padding:9px 10px;min-width:0}
   .history-expr{color:#c5d3c9;font-size:12px;overflow-wrap:anywhere}
   .history-result{color:#ff4a57;font-weight:800;font-size:17px;overflow-wrap:anywhere}
   .hint{font-size:11px;color:#809487;margin-top:9px;text-align:center}
-  @media(max-width:600px){.title{font-size:25px}.columns{grid-template-columns:1fr}.science-grid{gap:6px}.keypad{gap:7px}.history-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.result{font-size:30px}}
+  @media(max-width:760px){.title{font-size:25px}.workspace{grid-template-columns:1fr}.columns{grid-template-columns:1.18fr 1fr}.science-grid{gap:6px}.keypad{gap:7px}.history-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.result{font-size:30px}}
+  @media(max-width:480px){.columns{grid-template-columns:1fr}.history-grid{grid-template-columns:1fr}}
 </style>
 <div class="shell">
   <div class="brand">ALI JAMIL</div>
   <div class="title">Scientific Calculator</div>
   <div class="subtitle">ADVANCED CALCULATION SYSTEM</div>
+  <div class="workspace">
+   <main class="calculator-panel">
   <div class="screen" aria-live="polite">
     <div class="expression" id="expr">&nbsp;</div>
     <div class="result" id="result">&nbsp;</div>
@@ -73,10 +79,14 @@ html_app = r"""
       </div>
     </section>
   </div>
-  <section class="history">
-    <div class="section-label">CALCULATION HISTORY</div>
-    <div class="history-grid" id="history"></div>
-  </section>
+   </main>
+   <aside class="history-panel">
+    <section class="history">
+      <div class="section-label">CALCULATION HISTORY</div>
+      <div class="history-grid" id="history"></div>
+    </section>
+   </aside>
+  </div>
   <div class="hint">Keyboard: numbers and operators · Enter = calculate · Backspace = delete · Esc = clear</div>
 </div>
 <script>
@@ -97,9 +107,9 @@ html_app = r"""
    $('history').innerHTML=history.map(h=>'<div class="history-item"><div class="history-expr">'+escapeHtml(h[0])+' · '+h[2]+'</div><div class="history-result">= '+escapeHtml(h[1])+'</div></div>').join('');
  }
  function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
- function add(s){if(!isOn)return;expression+=s;result='';paint();}
+ function add(s){if(!isOn)return;expression+=s;result=expression;paint();}
  function clear(){expression='';result='';paint();}
- function del(){expression=expression.slice(0,-1);result='';paint();}
+ function del(){expression=expression.slice(0,-1);result=expression;paint();}
  function trig(fn,x){return angle==='DEG'?fn(x*Math.PI/180):fn(x);}
  function inv(fn,x){let y=fn(x);return angle==='DEG'?y*180/Math.PI:y;}
  function fact(x){if(x<0||!Number.isInteger(x)||x>170)throw Error('Factorial needs an integer from 0 to 170');let n=1;for(let i=2;i<=x;i++)n*=i;return n;}
