@@ -223,17 +223,77 @@ if st.session_state.history:
         with cols[i % 3]:
             st.markdown(f'<div class="history-item"><div class="history-expr">{html.escape(ex)} · {mode}</div><div class="history-result">= {html.escape(result)}</div></div>', unsafe_allow_html=True)
 
-# Focus this input to use the physical keyboard. Enter evaluates the full typed expression.
-def keyboard_submit():
-    typed = st.session_state.keyboard_expr.strip()
-    if not typed: return
-    if typed.lower() in {"clear", "ac", "esc", "escape"}:
-        clear()
-    elif typed.lower() in {"del", "backspace"}:
-        delete()
-    else:
-        st.session_state.expr = typed
-        calculate()
-    st.session_state.keyboard_expr = ""
+# Global physical-keyboard support: no extra input field is shown.
+# The component listens for keys while the calculator page is active and sends
+# the pressed key to Streamlit; all entered characters update the main display.
+from streamlit.components.v1 import html as components_html
 
-st.text_input("Keyboard expression", key="keyboard_expr", placeholder="Type expression and press Enter", label_visibility="collapsed", on_change=keyboard_submit, disabled=not st.session_state.power)
+keyboard_component = r"""
+<script>
+(function () {
+  const doc = window.parent.document;
+  if (doc.__aliCalculatorKeyboardInstalled) return;
+  doc.__aliCalculatorKeyboardInstalled = true;
+
+  function sendKey(key) {
+    const target = doc.querySelector('input[aria-label="Keyboard event bridge"]');
+    if (!target) return false;
+    const setter = Object.getOwnPropertyDescriptor(window.parent.HTMLInputElement.prototype, 'value').set;
+    setter.call(target, key);
+    target.dispatchEvent(new Event('input', { bubbles: true }));
+    target.dispatchEvent(new Event('change', { bubbles: true }));
+    target.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    target.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', bubbles: true }));
+    return true;
+  }
+
+  doc.addEventListener('keydown', function (event) {
+    if (event.ctrlKey || event.altKey || event.metaKey) return;
+    const active = doc.activeElement;
+    const typingIntoField = active && (
+      active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' ||
+      active.isContentEditable
+    );
+    if (typingIntoField) return;
+
+    let key = event.key;
+    if (/^[0-9.+\\-*/()%^!]$/.test(key) || key === '(' || key === ')') {
+      if (sendKey(key)) event.preventDefault();
+    } else if (key === 'Enter' || key === '=') {
+      if (sendKey('__CALCULATE__')) event.preventDefault();
+    } else if (key === 'Backspace') {
+      if (sendKey('__DELETE__')) event.preventDefault();
+    } else if (key === 'Escape') {
+      if (sendKey('__CLEAR__')) event.preventDefault();
+    }
+  }, true);
+})();
+</script>
+"""
+# Hidden Streamlit bridge receives physical key events; the field is not visible.
+def process_physical_key():
+    key = st.session_state.get("_physical_key", "")
+    if key == "__CALCULATE__":
+        calculate()
+    elif key == "__DELETE__":
+        delete()
+    elif key == "__CLEAR__":
+        clear()
+    elif key and key not in {"__CALCULATE__", "__DELETE__", "__CLEAR__"}:
+        add(key)
+    st.session_state["_physical_key"] = ""
+
+st.text_input(
+    "Keyboard event bridge",
+    key="_physical_key",
+    on_change=process_physical_key,
+    label_visibility="collapsed",
+    disabled=not st.session_state.power,
+)
+st.markdown(
+    '<style>div[data-testid="stTextInput"]:has(input[aria-label="Keyboard event bridge"])'
+    '{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;'
+    'opacity:0!important;pointer-events:none!important;left:-10000px!important;}</style>',
+    unsafe_allow_html=True,
+)
+components_html(keyboard_component, height=0, scrolling=False)
