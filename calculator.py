@@ -1,198 +1,304 @@
-import ast, math, operator, re
+import ast
+import math
+import operator
+import re
+import html
 import streamlit as st
 
 st.set_page_config(page_title="Scientific Calculator | Ali Jamil", page_icon="🧮", layout="centered")
 
-for k, v in {
-    "expr": "", "result": "", "on": True, "mode": "DEG",
-    "second": False, "ans": 0.0, "memory": 0.0, "history": [],
-}.items():
-    if k not in st.session_state:
-        st.session_state[k] = v
+# -------------------- Session state --------------------
+DEFAULTS = {
+    "expression": "", "result": "", "calculator_on": True, "mode": "DEG",
+    "second_function": False, "answer": 0.0, "memory": 0.0, "history": [],
+    "keyboard_expression": "",
+}
+for key, value in DEFAULTS.items():
+    if key not in st.session_state:
+        st.session_state[key] = value
 
+# -------------------- Safe scientific calculation engine --------------------
 def trig(fn, x):
     return fn(math.radians(x)) if st.session_state.mode == "DEG" else fn(x)
 
-def invtrig(fn, x):
-    v = fn(x)
-    return math.degrees(v) if st.session_state.mode == "DEG" else v
+def inv_trig(fn, x):
+    result = fn(x)
+    return math.degrees(result) if st.session_state.mode == "DEG" else result
 
-def fact(x):
+def factorial_value(x):
     if x < 0 or not float(x).is_integer():
         raise ValueError("Factorial requires a non-negative integer")
     return math.factorial(int(x))
 
-FUNCS = {
-    "sin": lambda x: trig(math.sin, x), "cos": lambda x: trig(math.cos, x),
-    "tan": lambda x: trig(math.tan, x), "asin": lambda x: invtrig(math.asin, x),
-    "acos": lambda x: invtrig(math.acos, x), "atan": lambda x: invtrig(math.atan, x),
-    "sqrt": math.sqrt, "log": math.log10, "ln": math.log, "abs": abs, "factorial": fact,
+FUNCTIONS = {
+    "sin": lambda x: trig(math.sin, x),
+    "cos": lambda x: trig(math.cos, x),
+    "tan": lambda x: trig(math.tan, x),
+    "asin": lambda x: inv_trig(math.asin, x),
+    "acos": lambda x: inv_trig(math.acos, x),
+    "atan": lambda x: inv_trig(math.atan, x),
+    "sqrt": math.sqrt, "log": math.log10, "ln": math.log,
+    "abs": abs, "factorial": factorial_value,
 }
-BOPS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
-        ast.Div: operator.truediv, ast.Pow: operator.pow, ast.Mod: operator.mod}
-UOPS = {ast.UAdd: operator.pos, ast.USub: operator.neg}
+BINARY_OPERATORS = {
+    ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
+    ast.Div: operator.truediv, ast.Pow: operator.pow, ast.Mod: operator.mod,
+}
+UNARY_OPERATORS = {ast.UAdd: operator.pos, ast.USub: operator.neg}
 
-def nodeval(n):
-    if isinstance(n, ast.Constant) and isinstance(n.value, (int, float)): return n.value
-    if isinstance(n, ast.Num): return n.n
-    if isinstance(n, ast.BinOp) and type(n.op) in BOPS: return BOPS[type(n.op)](nodeval(n.left), nodeval(n.right))
-    if isinstance(n, ast.UnaryOp) and type(n.op) in UOPS: return UOPS[type(n.op)](nodeval(n.operand))
-    if isinstance(n, ast.Name) and n.id in {"pi", "e"}: return math.pi if n.id == "pi" else math.e
-    if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id in FUNCS:
-        return FUNCS[n.func.id](*(nodeval(a) for a in n.args))
-    raise ValueError("Invalid expression or unsupported function")
+def evaluate_node(node):
+    if isinstance(node, ast.Constant):
+        if isinstance(node.value, (int, float)):
+            return node.value
+        raise ValueError("Invalid number")
+    # ast.Num was removed in some newer Python versions; avoid accessing ast.Num.
+    if isinstance(node, ast.BinOp) and type(node.op) in BINARY_OPERATORS:
+        return BINARY_OPERATORS[type(node.op)](evaluate_node(node.left), evaluate_node(node.right))
+    if isinstance(node, ast.UnaryOp) and type(node.op) in UNARY_OPERATORS:
+        return UNARY_OPERATORS[type(node.op)](evaluate_node(node.operand))
+    if isinstance(node, ast.Name):
+        if node.id == "pi": return math.pi
+        if node.id == "e": return math.e
+        raise ValueError(f"Unknown constant: {node.id}")
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+        function_name = node.func.id
+        if function_name not in FUNCTIONS:
+            raise ValueError(f"Unsupported function: {function_name}")
+        return FUNCTIONS[function_name](*(evaluate_node(arg) for arg in node.args))
+    raise ValueError("Invalid expression")
 
-def evaluate(expr):
-    s = expr.replace("×", "*").replace("÷", "/").replace("−", "-").replace("π", "pi").replace("^", "**")
-    s = s.replace("sin⁻¹", "asin").replace("cos⁻¹", "acos").replace("tan⁻¹", "atan").replace("√", "sqrt")
-    s = re.sub(r'(\b\d+(?:\.\d+)?|\bpi|\be|\))!', r'factorial(\1)', s)
-    s = re.sub(r'(\d+(?:\.\d+)?)%', r'(\1/100)', s)
-    value = nodeval(ast.parse(s, mode="eval").body)
+def evaluate_expression(expression):
+    text = expression.strip()
+    text = text.replace("×", "*").replace("÷", "/").replace("−", "-")
+    text = text.replace("π", "pi").replace("^", "**").replace("√", "sqrt")
+    text = text.replace("sin⁻¹", "asin").replace("cos⁻¹", "acos").replace("tan⁻¹", "atan")
+    # Convert postfix factorial on numbers, constants, or closed parentheses.
+    text = re.sub(r'(\b\d+(?:\.\d+)?|\bpi|\be|\))!', r'factorial(\1)', text)
+    # Percent on a number: 25% means 25/100.
+    text = re.sub(r'(\d+(?:\.\d+)?)%', r'(\1/100)', text)
+    tree = ast.parse(text, mode="eval")
+    value = evaluate_node(tree.body)
     if isinstance(value, complex) or not math.isfinite(float(value)):
         raise ValueError("Result is not a finite real number")
     return value
 
-def fmt(v):
-    return str(int(v)) if isinstance(v, float) and v.is_integer() else (f"{v:.12g}" if isinstance(v, float) else str(v))
+def format_result(value):
+    if isinstance(value, float):
+        if value.is_integer():
+            return str(int(value))
+        return f"{value:.12g}"
+    return str(value)
 
-def add(s):
-    if st.session_state.on:
-        st.session_state.expr += str(s)
+def add_value(value):
+    if st.session_state.calculator_on:
+        st.session_state.expression += str(value)
         st.session_state.result = ""
 
-def clear():
-    st.session_state.expr = ""
+def clear_all():
+    st.session_state.expression = ""
     st.session_state.result = ""
 
-def delete():
-    st.session_state.expr = st.session_state.expr[:-1]
+def delete_last():
+    st.session_state.expression = st.session_state.expression[:-1]
     st.session_state.result = ""
 
 def calculate():
-    if not st.session_state.on or not st.session_state.expr.strip(): return
-    source = st.session_state.expr
+    if not st.session_state.calculator_on or not st.session_state.expression.strip():
+        return
+    original = st.session_state.expression
     try:
-        value = evaluate(source)
-        result = fmt(value)
-        st.session_state.ans = value
+        value = evaluate_expression(original)
+        result = format_result(value)
+        st.session_state.answer = value
         st.session_state.result = result
-        st.session_state.history.insert(0, (source, result, st.session_state.mode))
+        st.session_state.history.insert(0, (original, result, st.session_state.mode))
         st.session_state.history = st.session_state.history[:40]
-        st.session_state.expr = result
+        st.session_state.expression = result
     except ZeroDivisionError:
         st.session_state.result = "Cannot divide by zero"
-    except Exception as e:
-        st.session_state.result = f"Error: {e}"
+    except (ValueError, SyntaxError, TypeError, OverflowError) as exc:
+        st.session_state.result = f"Error: {exc}"
+    except Exception:
+        st.session_state.result = "Calculation error"
 
+# -------------------- Compact professional styling --------------------
 st.markdown("""
 <style>
-.stApp{background:radial-gradient(ellipse at top left,#202b40 0%,#0a0f1b 62%,#06080e 100%);color:#f8fafc}
-.block-container{max-width:960px;padding-top:1rem;padding-bottom:1rem}
-.brand{font-size:12px;letter-spacing:4px;font-weight:800;color:#b9c5d8}
-.title{font-size:30px;font-weight:850;line-height:1.2;color:#fff;margin:3px 0}
-.subtitle{font-size:10px;letter-spacing:2.7px;color:#a6b2c7}
-.screen{background:linear-gradient(140deg,#020304,#15121a 65%,#080a0e);border:1px solid #3b3039;border-radius:14px;padding:15px 17px;min-height:100px;text-align:right;box-shadow:inset 0 0 22px #000;margin:12px 0}
-.expr{color:#aeb9c9;min-height:20px;font-size:14px;overflow-wrap:anywhere}
-.output{font-size:32px;font-weight:800;color:#ff3b49;text-shadow:0 0 5px #ff2635,0 0 17px #ed1b32aa;overflow-wrap:anywhere}
-.panel{background:#101725;border:1px solid #2d394d;border-radius:15px;padding:12px}
-.panel-title{font-size:11px;letter-spacing:2px;color:#aab7cb;font-weight:800;margin:3px 0 10px}
-div.stButton>button{min-height:39px;border-radius:9px;font-weight:750;border:1px solid #344055;transition:.12s}
-div.stButton>button:hover{transform:translateY(-1px);border-color:#9aa9c0}
-div.stButton>button[kind="secondary"]{background:#171f2d;color:#fff}
-div[data-testid="stTextInput"] input{background:#101725;color:white}
-.history{background:#0c1220;border:1px solid #273247;border-radius:9px;padding:9px;margin-bottom:7px}
-@media(max-width:700px){.block-container{padding:.6rem}.title{font-size:25px}}
+.stApp {background:radial-gradient(ellipse at 10% 0%,#202b40 0%,#0a0f1b 55%,#06080e 100%);color:#f8fafc}
+.block-container {max-width:980px;padding-top:1rem;padding-bottom:1rem}
+.brand {font-size:12px;letter-spacing:3px;font-weight:800;color:#b9c5d8}
+.title {font-size:30px;line-height:1.15;font-weight:850;color:#fff;margin:2px 0 3px}
+.subtitle {font-size:10px;letter-spacing:2.5px;color:#a6b2c7}
+.screen {background:linear-gradient(140deg,#020304,#15121a 65%,#080a0e);border:1px solid #3b3039;border-radius:14px;padding:14px 17px;min-height:94px;text-align:right;box-shadow:inset 0 0 22px #000;margin:10px 0}
+.expr {color:#aeb9c9;min-height:20px;font-size:14px;overflow-wrap:anywhere}
+.output {font-size:32px;line-height:1.2;font-weight:800;color:#ff3b49;text-shadow:0 0 5px #ff2635,0 0 17px #ed1b32aa;overflow-wrap:anywhere}
+.panel {background:#101725;border:1px solid #2d394d;border-radius:14px;padding:11px}
+.panel-title {font-size:11px;letter-spacing:1.7px;color:#aab7cb;font-weight:800;margin:2px 0 9px}
+div.stButton>button {min-height:38px;border-radius:9px;font-weight:750;border:1px solid #344055;transition:all .12s ease}
+div.stButton>button:hover {transform:translateY(-1px);border-color:#9aa9c0}
+div.stButton>button[kind="secondary"] {background:#171f2d;color:#fff}
+.utility div.stButton>button {background:#263043!important;color:#fff!important}
+.operator div.stButton>button {background:#d72d3b!important;color:#fff!important;border-color:#f05260!important}
+.equal div.stButton>button {background:#d72d3b!important;color:#fff!important}
+.science div.stButton>button {background:#202a3a!important;color:#f8fafc!important;min-height:35px;font-size:12px}
+.history-item {background:#0c1220;border:1px solid #273247;border-radius:9px;padding:9px;margin-bottom:7px}
+.history-expression {font-size:12px;color:#9eabc0;overflow-wrap:anywhere}
+.history-result {font-size:17px;font-weight:800;color:#ff4b58;overflow-wrap:anywhere}
+.status-on {color:#22c55e;font-size:12px;font-weight:800}
+.status-off {color:#ef4444;font-size:12px;font-weight:800}
+@media(max-width:700px) {.block-container{padding:.6rem}.title{font-size:25px}.panel{padding:8px}}
 </style>
 """, unsafe_allow_html=True)
 
-top1, top2 = st.columns([4,1])
-with top1:
-    st.markdown('<div class="brand">ALI JAMIL</div><div class="title">Scientific Calculator</div><div class="subtitle">ADVANCED CALCULATION SYSTEM</div>', unsafe_allow_html=True)
-with top2:
-    st.markdown(f'<div style="font-weight:800;color:{"#22c55e" if st.session_state.on else "#ef4444"}">● {"ON" if st.session_state.on else "OFF"}</div>', unsafe_allow_html=True)
-    if st.button("⏻ ON / OFF", use_container_width=True):
-        st.session_state.on = not st.session_state.on
-        if not st.session_state.on: clear()
-        st.rerun()
+# -------------------- Header --------------------
+header_left, header_right = st.columns([5, 1])
+with header_left:
+    st.markdown(
+        '<div class="brand">ALI JAMIL</div><div class="title">Scientific Calculator</div>'
+        '<div class="subtitle">ADVANCED CALCULATION SYSTEM</div>',
+        unsafe_allow_html=True,
+    )
+with header_right:
+    status_class = "status-on" if st.session_state.calculator_on else "status-off"
+    status_text = "● ON" if st.session_state.calculator_on else "● OFF"
+    st.markdown(f'<div class="{status_class}">{status_text}</div>', unsafe_allow_html=True)
 
-calc, hist = st.columns([1.7, .9], gap="medium")
-with calc:
-    st.markdown('<div class="screen"><div class="expr">'+(st.session_state.expr or '&nbsp;')+'</div><div class="output">'+(st.session_state.result or '&nbsp;')+'</div></div>', unsafe_allow_html=True)
-    c = st.columns(3, gap="small")
-    for col, label, fn in zip(c, ["DEL","CLR","AC"], [delete,clear,clear]):
-        with col:
-            if st.button(label, key="utility_"+label, use_container_width=True, disabled=not st.session_state.on):
-                fn(); st.rerun()
-    sci, pad = st.columns([1,1.12], gap="small")
-    with sci:
+# Layout: calculator left, history right.
+calculator_col, history_col = st.columns([1.7, 0.9], gap="medium")
+
+with calculator_col:
+    # Display: escaped user text prevents accidental HTML injection.
+    expr_html = html.escape(st.session_state.expression) or "&nbsp;"
+    result_html = html.escape(st.session_state.result) or "&nbsp;"
+    st.markdown(
+        f'<div class="screen"><div class="expr">{expr_html}</div><div class="output">{result_html}</div></div>',
+        unsafe_allow_html=True,
+    )
+
+    # Tiny power control sits directly below the output screen.
+    power_cols = st.columns([4, 1.05])
+    with power_cols[0]:
+        utility_cols = st.columns(3, gap="small")
+        for col, label, fn in zip(utility_cols, ["DEL", "CLR", "AC"], [delete_last, clear_all, clear_all]):
+            with col:
+                st.markdown('<div class="utility">', unsafe_allow_html=True)
+                if st.button(label, key=f"utility_{label}", use_container_width=True, disabled=not st.session_state.calculator_on):
+                    fn()
+                    st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+    with power_cols[1]:
+        if st.button("⏻ ON" if not st.session_state.calculator_on else "⏻ OFF",
+                     key="power_small", use_container_width=True):
+            st.session_state.calculator_on = not st.session_state.calculator_on
+            if not st.session_state.calculator_on:
+                clear_all()
+            st.rerun()
+
+    scientific_col, keypad_col = st.columns([1, 1.12], gap="small")
+
+    with scientific_col:
         st.markdown('<div class="panel-title">SCIENTIFIC</div>', unsafe_allow_html=True)
-        md = st.columns(2)
-        with md[0]:
-            if st.button("DEG", use_container_width=True): st.session_state.mode="DEG"; st.rerun()
-        with md[1]:
-            if st.button("RAD", use_container_width=True): st.session_state.mode="RAD"; st.rerun()
-        scientific = [
-            [("2nd","second"),("sin","sin("),("cos","cos(")],
-            [("tan","tan("),("sin⁻¹","sin⁻¹("),("cos⁻¹","cos⁻¹(")],
-            [("tan⁻¹","tan⁻¹("),("√","√("),("x²","^2")],
-            [("xʸ","^"),("log","log("),("ln","ln(")],
-            [("π","π"),("e","e"),("!","!")],
-            [("(","("),(")",")"),("%","%")],
-            [("ANS","ans"),("M+","mplus"),("MR","mr")],
+        mode_cols = st.columns(2, gap="small")
+        with mode_cols[0]:
+            if st.button("DEG", key="mode_deg", use_container_width=True):
+                st.session_state.mode = "DEG"
+                st.rerun()
+        with mode_cols[1]:
+            if st.button("RAD", key="mode_rad", use_container_width=True):
+                st.session_state.mode = "RAD"
+                st.rerun()
+
+        science_rows = [
+            [("2nd", "second"), ("sin", "sin("), ("cos", "cos(")],
+            [("tan", "tan("), ("sin⁻¹", "sin⁻¹("), ("cos⁻¹", "cos⁻¹(")],
+            [("tan⁻¹", "tan⁻¹("), ("√", "√("), ("x²", "^2")],
+            [("xʸ", "^"), ("log", "log("), ("ln", "ln(")],
+            [("π", "π"), ("e", "e"), ("!", "!")],
+            [("(", "("), (")", ")"), ("%", "%")],
+            [("ANS", "ans"), ("M+", "mplus"), ("MR", "mr")],
         ]
-        for ri,row in enumerate(scientific):
-            cols=st.columns(3,gap="small")
-            for j,(label,val) in enumerate(row):
-                with cols[j]:
-                    if st.button(label,key=f"sf{ri}{j}",use_container_width=True,disabled=not st.session_state.on):
-                        if val=="second": st.session_state.second=not st.session_state.second
-                        elif val=="ans": add(fmt(st.session_state.ans))
-                        elif val=="mplus":
-                            try: st.session_state.memory += float(evaluate(st.session_state.expr))
-                            except Exception: st.session_state.result="Enter a valid value first"
-                        elif val=="mr": add(fmt(st.session_state.memory))
-                        elif val in ("sin(","cos(","tan(") and st.session_state.second:
-                            add({"sin(":"sin⁻¹(","cos(":"cos⁻¹(","tan(":"tan⁻¹("}[val])
-                        else: add(val)
+        for row_index, row in enumerate(science_rows):
+            cols = st.columns(3, gap="small")
+            for col_index, (label, value) in enumerate(row):
+                with cols[col_index]:
+                    st.markdown('<div class="science">', unsafe_allow_html=True)
+                    if st.button(label, key=f"science_{row_index}_{col_index}",
+                                 use_container_width=True, disabled=not st.session_state.calculator_on):
+                        if value == "second":
+                            st.session_state.second_function = not st.session_state.second_function
+                        elif value == "ans":
+                            add_value(format_result(st.session_state.answer))
+                        elif value == "mplus":
+                            try:
+                                st.session_state.memory += float(evaluate_expression(st.session_state.expression))
+                            except Exception:
+                                st.session_state.result = "Enter a valid value first"
+                        elif value == "mr":
+                            add_value(format_result(st.session_state.memory))
+                        elif value in ("sin(", "cos(", "tan(") and st.session_state.second_function:
+                            add_value({"sin(": "sin⁻¹(", "cos(": "cos⁻¹(", "tan(": "tan⁻¹("}[value])
+                        else:
+                            add_value(value)
                         st.rerun()
-        st.caption(f"Angle: {st.session_state.mode} · 2nd: {'ON' if st.session_state.second else 'OFF'}")
-    with pad:
+                    st.markdown('</div>', unsafe_allow_html=True)
+
+    with keypad_col:
         st.markdown('<div class="panel-title">KEYPAD</div>', unsafe_allow_html=True)
-        rows=[
-            [("7","7","n"),("8","8","n"),("9","9","n"),("+","+","op")],
-            [("4","4","n"),("5","5","n"),("6","6","n"),("−","-","op")],
-            [("1","1","n"),("2","2","n"),("3","3","n"),("×","*","op")],
-            [("0","0","n"),(".",".","n"),("(","(","n"),("÷","/","op")],
-            [(") ",")","n"),("^","^","n"),("%","%","n"),("=","=","eq")],
+        keypad_rows = [
+            [("7", "7", "n"), ("8", "8", "n"), ("9", "9", "n"), ("+", "+", "op")],
+            [("4", "4", "n"), ("5", "5", "n"), ("6", "6", "n"), ("−", "-", "op")],
+            [("1", "1", "n"), ("2", "2", "n"), ("3", "3", "n"), ("×", "*", "op")],
+            [("0", "0", "n"), (".", ".", "n"), ("(", "(", "n"), ("÷", "/", "op")],
+            [(")", ")", "n"), ("^", "^", "n"), ("%", "%", "n"), ("=", "=", "eq")],
         ]
-        for ri,row in enumerate(rows):
-            cols=st.columns(4,gap="small")
-            for j,(label,val,kind) in enumerate(row):
-                with cols[j]:
-                    if kind=="op": st.markdown('<div style="color:#ff5964">',unsafe_allow_html=True)
-                    if st.button(label,key=f"kp{ri}{j}",use_container_width=True,disabled=not st.session_state.on):
-                        calculate() if val=="=" else add(val)
+        for row_index, row in enumerate(keypad_rows):
+            cols = st.columns(4, gap="small")
+            for col_index, (label, value, kind) in enumerate(row):
+                with cols[col_index]:
+                    css_class = "operator" if kind == "op" else ("equal" if kind == "eq" else "keypad")
+                    st.markdown(f'<div class="{css_class}">', unsafe_allow_html=True)
+                    if st.button(label, key=f"keypad_{row_index}_{col_index}",
+                                 use_container_width=True, disabled=not st.session_state.calculator_on):
+                        calculate() if value == "=" else add_value(value)
                         st.rerun()
-    st.caption("Physical keyboard: click the input below, type an expression, then press Enter.")
-with hist:
-    st.markdown('<div class="panel-title">CALCULATION HISTORY</div>',unsafe_allow_html=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
+
+with history_col:
+    st.markdown('<div class="panel-title">HISTORY</div>', unsafe_allow_html=True)
     if st.session_state.history:
-        if st.button("Clear history",use_container_width=True): st.session_state.history=[]; st.rerun()
-        for ex,res,mode in st.session_state.history:
-            st.markdown(f'<div class="history"><div style="font-size:12px;color:#9eabc0;overflow-wrap:anywhere">{ex} · {mode}</div><div style="font-size:17px;font-weight:800;color:#ff4b58">= {res}</div></div>',unsafe_allow_html=True)
+        if st.button("Clear history", key="clear_history", use_container_width=True):
+            st.session_state.history = []
+            st.rerun()
+        for expression, result, mode in st.session_state.history:
+            expression_html = html.escape(expression)
+            result_html = html.escape(result)
+            st.markdown(
+                f'<div class="history-item"><div class="history-expression">{expression_html} · {mode}</div>'
+                f'<div class="history-result">= {result_html}</div></div>',
+                unsafe_allow_html=True,
+            )
     else:
-        st.markdown('<div style="font-size:13px;color:#93a1b6">Your calculations will be saved here after you calculate.</div>',unsafe_allow_html=True)
+        st.markdown('<div style="font-size:13px;color:#93a1b6">No calculations yet.</div>', unsafe_allow_html=True)
 
+# Physical keyboard: type a complete expression into this compact field and press Enter.
 def keyboard_submit():
-    value=st.session_state.get("keyboard_expr","").strip()
-    if value:
-        if value.lower() in ("clear","ac","esc"): clear()
-        elif value.lower()=="del": delete()
-        else:
-            # Accept a complete typed expression, then calculate on Enter.
-            st.session_state.expr=value
-            calculate()
-    st.session_state.keyboard_expr=""
+    typed = st.session_state.keyboard_expression.strip()
+    if not typed:
+        return
+    if typed.lower() in {"clear", "ac", "esc", "escape"}:
+        clear_all()
+    elif typed.lower() in {"del", "backspace"}:
+        delete_last()
+    else:
+        st.session_state.expression = typed
+        calculate()
+    st.session_state.keyboard_expression = ""
 
-st.text_input("Keyboard expression", key="keyboard_expr", placeholder="Type e.g. 5+3, sin(30), 2^8 and press Enter", on_change=keyboard_submit, disabled=not st.session_state.on)
-st.caption("Functions: sin, cos, tan, inverse trig, √, log, ln, factorial (!), π, e, %, powers, parentheses, and standard arithmetic.")
+st.text_input(
+    "Keyboard expression",
+    key="keyboard_expression",
+    placeholder="Type expression and press Enter (e.g. 9*6 or sin(30))",
+    label_visibility="collapsed",
+    on_change=keyboard_submit,
+    disabled=not st.session_state.calculator_on,
+)
