@@ -114,7 +114,7 @@ div.stButton>button:hover{transform:translateY(-1px);border-color:#8ba497}
 .power-off div.stButton>button{background:#9f202b!important;color:white!important;border-color:#ff4a55!important;box-shadow:0 0 10px #ff263955;min-height:34px;font-size:12px}
 .operator div.stButton>button{background:#F79422!important;color:#17110a!important;border-color:#ffb65f!important;font-size:18px}
 .number-key div.stButton>button{background:#111412!important;color:white!important;border-color:#303a33!important}
-.science-key div.stButton>button{background:#18221c!important;color:#f4faf5!important;border-color:#354b3b!important;min-height:36px;font-size:12px}
+.science-key div.stButton>button{background:#18221c!important;color:#f4faf5!important;border-color:#354b3b!important;min-height:36px;padding-left:2px;padding-right:2px;font-size:11px}
 .equals-key div.stButton>button{background:#F79422!important;color:#17110a!important;border-color:#ffb65f!important}
 .history-item{border:1px solid #273e30;background:#0b1510;border-radius:10px;padding:9px 10px;margin-bottom:8px}
 .history-expr{color:#c5d3c9;font-size:12px;overflow-wrap:anywhere}
@@ -151,40 +151,44 @@ with controls[3]:
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
-science_col, keypad_col = st.columns([1, 1.08], gap="medium")
+science_col, keypad_col = st.columns([1.18, 1], gap="medium")
 with science_col:
     st.markdown('<div style="font-size:11px;letter-spacing:2px;font-weight:800;color:#a9c2b1;margin:7px 0 10px">SCIENTIFIC FUNCTIONS</div>', unsafe_allow_html=True)
-    modes = st.columns(2, gap="small")
-    with modes[0]:
-        if st.button("DEG", key="deg", use_container_width=True): st.session_state.angle="DEG"; st.rerun()
-    with modes[1]:
-        if st.button("RAD", key="rad", use_container_width=True): st.session_state.angle="RAD"; st.rerun()
+    # Four equal columns keep scientific keys consistently aligned and use the
+    # available panel width more effectively.
     rows = [
-        [("2nd","second"),("sin","sin("),("cos","cos(")],
-        [("tan","tan("),("sin⁻¹","sin⁻¹("),("cos⁻¹","cos⁻¹(")],
-        [("tan⁻¹","tan⁻¹("),("√","√("),("x²","^2")],
-        [("xʸ","^"),("log","log("),("ln","ln(")],
-        [("π","π"),("e","e"),("!","!")],
-        [("(","("),(")",")"),("%","%")],
-        [("ANS","ans"),("M+","mplus"),("MR","mr")],
+        [("DEG", "deg"), ("RAD", "rad"), ("2nd", "second"), ("sin", "sin(")],
+        [("cos", "cos("), ("tan", "tan("), ("sin⁻¹", "sin⁻¹("), ("cos⁻¹", "cos⁻¹(")],
+        [("tan⁻¹", "tan⁻¹("), ("√", "√("), ("x²", "^2"), ("xʸ", "^")],
+        [("log", "log("), ("ln", "ln("), ("π", "π"), ("e", "e")],
+        [("!", "!"), ("(", "("), (")", ")"), ("%", "%")],
+        [("ANS", "ans"), ("M+", "mplus"), ("MR", "mr"), ("⌫", "delete")],
     ]
     for ri, row in enumerate(rows):
-        cols = st.columns(3, gap="small")
+        cols = st.columns(4, gap="small")
         for ci, (label, value) in enumerate(row):
             with cols[ci]:
                 st.markdown('<div class="science-key">', unsafe_allow_html=True)
                 if st.button(label, key=f"sci_{ri}_{ci}", use_container_width=True, disabled=not st.session_state.power):
-                    if value == "second":
+                    if value == "deg":
+                        st.session_state.angle = "DEG"
+                    elif value == "rad":
+                        st.session_state.angle = "RAD"
+                    elif value == "second":
                         st.session_state.second = not st.session_state.second
                     elif value == "ans":
                         add(fmt(st.session_state.answer))
                     elif value == "mplus":
-                        try: st.session_state.memory += float(evaluate(st.session_state.expr))
-                        except Exception: st.session_state.result = "Enter a valid value first"
+                        try:
+                            st.session_state.memory += float(evaluate(st.session_state.expr))
+                        except Exception:
+                            st.session_state.result = "Enter a valid value first"
                     elif value == "mr":
                         add(fmt(st.session_state.memory))
-                    elif value in ("sin(","cos(","tan(") and st.session_state.second:
-                        add({"sin(":"sin⁻¹(","cos(":"cos⁻¹(","tan(":"tan⁻¹("}[value])
+                    elif value == "delete":
+                        delete()
+                    elif value in ("sin(", "cos(", "tan(") and st.session_state.second:
+                        add({"sin(": "sin⁻¹(", "cos(": "cos⁻¹(", "tan(": "tan⁻¹("}[value])
                     else:
                         add(value)
                     st.rerun()
