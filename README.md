@@ -35,15 +35,6 @@ The application uses the Streamlit framework to transform Python programming log
 | Git | Version control |
 | GitHub | Source code hosting and project management |
 
-## 📂 Project Structure
-Calculator-Project-Using-Streamlit/
-│
-├── calculator.py
-├── requirements.txt
-├── README.md
-└── .gitignore
-
-
 ## ⚙️ Installation and Setup
 Follow these instructions to configure and run the application locally.
 
